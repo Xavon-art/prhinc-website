@@ -50,6 +50,60 @@ document.querySelectorAll('a[href^="#"]').forEach(anchor => {
     });
 });
 
+// Scroll Animations
+const observerOptions = {
+    threshold: 0.1,
+    rootMargin: '0px 0px -50px 0px'
+};
+
+const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+        if (entry.isIntersecting) {
+            entry.target.classList.add('visible');
+        }
+    });
+}, observerOptions);
+
+// Add animation classes to elements
+document.querySelectorAll('.feature-card, .team-card, .success-card, .faq-item').forEach(el => {
+    el.classList.add('fade-in');
+    observer.observe(el);
+});
+
+document.querySelectorAll('.expect-text, .history-text, .register-info').forEach(el => {
+    el.classList.add('slide-in-left');
+    observer.observe(el);
+});
+
+document.querySelectorAll('.expect-image, .history-image, .register-form-container').forEach(el => {
+    el.classList.add('slide-in-right');
+    observer.observe(el);
+});
+
+// Active navigation link highlighting
+const sections = document.querySelectorAll('section[id]');
+
+function highlightNav() {
+    const scrollY = window.pageYOffset;
+    
+    sections.forEach(section => {
+        const sectionHeight = section.offsetHeight;
+        const sectionTop = section.offsetTop - 100;
+        const sectionId = section.getAttribute('id');
+        
+        if (scrollY > sectionTop && scrollY <= sectionTop + sectionHeight) {
+            document.querySelectorAll('.nav-link').forEach(link => {
+                link.classList.remove('active');
+                if (link.getAttribute('href') === `#${sectionId}`) {
+                    link.classList.add('active');
+                }
+            });
+        }
+    });
+}
+
+window.addEventListener('scroll', highlightNav);
+
 // Form Validation
 const form = document.getElementById('registrationForm');
 
