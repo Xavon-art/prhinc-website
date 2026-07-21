@@ -524,3 +524,248 @@ img {
 .faq-answer li {
     margin-bottom: 8px;
 }
+
+/* History Section */
+.history-content {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 60px;
+    align-items: center;
+}
+
+.history-text h2 {
+    margin-bottom: 10px;
+}
+
+.history-subtitle {
+    font-size: 1.25rem;
+    color: var(--primary);
+    font-weight: 600;
+    margin-bottom: 30px;
+}
+
+.history-text p {
+    color: var(--gray-600);
+    margin-bottom: 20px;
+}
+
+.history-quote {
+    background: linear-gradient(135deg, var(--primary-light), var(--primary));
+    padding: 30px;
+    border-radius: var(--radius-lg);
+    margin: 30px 0;
+}
+
+.history-quote blockquote {
+    color: var(--white);
+    font-size: 1.25rem;
+    font-style: italic;
+    text-align: center;
+    line-height: 1.6;
+}
+
+.history-image img {
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-lg);
+    width: 100%;
+    height: auto;
+}
+
+@media (max-width: 768px) {
+    .history-content {
+        grid-template-columns: 1fr;
+        gap: 40px;
+    }
+}
+
+/* Inspired Section */
+.success-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+    gap: 30px;
+    margin-bottom: 50px;
+}
+
+.success-card {
+    background-color: var(--white);
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+    box-shadow: var(--shadow);
+    transition: var(--transition);
+}
+
+.success-card:hover {
+    transform: translateY(-5px);
+    box-shadow: var(--shadow-lg);
+}
+
+.success-image {
+    height: 250px;
+    overflow: hidden;
+}
+
+.success-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: var(--transition);
+}
+
+.success-card:hover .success-image img {
+    transform: scale(1.05);
+}
+
+.success-content {
+    padding: 25px;
+}
+
+.success-content h3 {
+    margin-bottom: 5px;
+    color: var(--dark);
+}
+
+.success-location {
+    color: var(--primary);
+    font-weight: 500;
+    margin-bottom: 15px;
+}
+
+.success-story {
+    color: var(--gray-600);
+    font-style: italic;
+    margin-bottom: 0;
+}
+
+.share-story {
+    text-align: center;
+    padding: 40px;
+    background-color: var(--white);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow);
+}
+
+.share-story h3 {
+    margin-bottom: 15px;
+    color: var(--dark);
+}
+
+.share-story p {
+    color: var(--gray-600);
+    margin-bottom: 25px;
+}
+
+/* Register Section */
+.register-content {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 60px;
+    align-items: start;
+}
+
+.register-info h2 {
+    margin-bottom: 10px;
+}
+
+.register-subtitle {
+    font-size: 1.125rem;
+    color: var(--gray-600);
+    margin-bottom: 30px;
+}
+
+.register-benefits {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.benefit-item {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    font-size: 1.05rem;
+}
+
+.benefit-icon {
+    width: 24px;
+    height: 24px;
+    background-color: var(--primary);
+    color: var(--white);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.875rem;
+    font-weight: 700;
+}
+
+.register-form-container {
+    background-color: var(--white);
+    padding: 40px;
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-lg);
+}
+
+.register-form {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.form-group label {
+    font-weight: 600;
+    color: var(--dark);
+}
+
+.form-group input,
+.form-group textarea,
+.form-group select {
+    padding: 12px 16px;
+    border: 2px solid var(--gray-200);
+    border-radius: var(--radius);
+    font-size: 1rem;
+    font-family: inherit;
+    transition: var(--transition);
+}
+
+.form-group input:focus,
+.form-group textarea:focus,
+.form-group select:focus {
+    outline: none;
+    border-color: var(--primary);
+}
+
+.form-group input::placeholder,
+.form-group textarea::placeholder {
+    color: var(--gray-300);
+}
+
+.btn-block {
+    width: 100%;
+    padding: 16px;
+    font-size: 1.125rem;
+}
+
+.form-note {
+    text-align: center;
+    color: var(--gray-600);
+    font-size: 0.875rem;
+    margin-top: 10px;
+    margin-bottom: 0;
+}
+
+@media (max-width: 768px) {
+    .register-content {
+        grid-template-columns: 1fr;
+        gap: 40px;
+    }
+
+    .register-form-container {
+        padding: 25px;
+    }
+}

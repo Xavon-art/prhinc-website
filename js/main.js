@@ -49,3 +49,41 @@ document.querySelectorAll('a[href^="#"]').forEach(anchor => {
         }
     });
 });
+
+// Form Validation
+const form = document.getElementById('registrationForm');
+
+if (form) {
+    form.addEventListener('submit', (e) => {
+        e.preventDefault();
+        
+        // Get form values
+        const formData = new FormData(form);
+        const data = Object.fromEntries(formData);
+        
+        // Simple validation
+        let isValid = true;
+        const requiredFields = ['fullName', 'email', 'phone', 'address', 'education'];
+        
+        requiredFields.forEach(field => {
+            if (!data[field] || data[field].trim() === '') {
+                isValid = false;
+                // Add error styling
+                const input = form.querySelector(`[name="${field}"]`);
+                input.style.borderColor = '#ef4444';
+            } else {
+                // Remove error styling
+                const input = form.querySelector(`[name="${field}"]`);
+                input.style.borderColor = '#e2e8f0';
+            }
+        });
+        
+        if (isValid) {
+            // Show success message
+            alert('Thank you for your registration! We will contact you soon.');
+            form.reset();
+        } else {
+            alert('Please fill in all required fields.');
+        }
+    });
+}
