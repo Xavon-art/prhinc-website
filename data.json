@@ -1,0 +1,26 @@
+﻿{
+    "trainers":  [
+                     {
+                         "email":  "mariz.garcia@prhinc.com",
+                         "name":  "Mariz Garcia"
+                     },
+                     {
+                         "email":  "suman.kunder@prhinc.com",
+                         "name":  "Suman Kunder"
+                     },
+                     {
+                         "email":  "jela.coloma@prhinc.com",
+                         "name":  "Jela Coloma"
+                     },
+                     {
+                         "email":  "christine.azarcon@prhinc.com",
+                         "name":  "Christine Azarcon"
+                     }
+                 ],
+    "classes":  [
+
+                ],
+    "registrations":  [
+
+                      ]
+}

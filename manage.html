@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PRHInc - Admin Login</title>
+    <link rel="stylesheet" href="css/manage.css">
+</head>
+<body>
+    <div class="login-container">
+        <div class="login-header">
+            <img src="images/prhinclogo.png" alt="PRHInc Logo" class="login-logo">
+            <h1>Admin Panel</h1>
+            <p>PRHInc Management System</p>
+        </div>
+        
+        <form id="loginForm" class="login-form">
+            <div class="form-group">
+                <label for="email">Email Address</label>
+                <input type="email" id="email" required placeholder="Enter your email" autocomplete="email">
+            </div>
+            
+            <div class="form-group">
+                <label for="password">Password</label>
+                <input type="password" id="password" required placeholder="Enter your password" autocomplete="current-password">
+            </div>
+            
+            <button type="submit" class="btn-login">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"></path>
+                    <polyline points="10 17 15 12 10 7"></polyline>
+                    <line x1="15" y1="12" x2="3" y2="12"></line>
+                </svg>
+                Sign In
+            </button>
+            
+            <div id="loginError" class="error-message"></div>
+        </form>
+        
+        <p class="back-link">
+            <a href="index.html">← Back to PRHInc Website</a>
+        </p>
+    </div>
+
+    <script>
+        const ADMIN_EMAIL = 'juliusmatro01@gmail.com';
+        const ADMIN_PASSWORD = 'admintest123';
+
+        document.getElementById('loginForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const email = document.getElementById('email').value.trim();
+            const password = document.getElementById('password').value;
+            const error = document.getElementById('loginError');
+
+            if (email === ADMIN_EMAIL && password === ADMIN_PASSWORD) {
+                sessionStorage.setItem('adminLoggedIn', 'true');
+                window.location.href = 'panel.html';
+            } else {
+                error.textContent = 'Invalid email or password';
+            }
+        });
+
+        if (sessionStorage.getItem('adminLoggedIn') === 'true') {
+            window.location.href = 'panel.html';
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,226 @@
+/* PRHInc Admin Panel - Premium Design */
+@import url('https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;400;500;600;700&family=Poppins:wght@400;500;600;700&display=swap');
+
+:root {
+    --primary: #0F172A;
+    --primary-light: #1E293B;
+    --secondary: #334155;
+    --accent: #0369A1;
+    --accent-light: #0EA5E9;
+    --accent-dark: #0284C7;
+    --success: #10B981;
+    --warning: #F59E0B;
+    --danger: #EF4444;
+    --bg: #F8FAFC;
+    --bg-alt: #F1F5F9;
+    --white: #FFFFFF;
+    --text: #020617;
+    --text-muted: #475569;
+    --text-light: #64748B;
+    --border: #E2E8F0;
+    --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+    --shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+    --shadow-md: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+    --shadow-lg: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
+    --shadow-xl: 0 25px 50px -12px rgb(0 0 0 / 0.25);
+    --radius-sm: 8px;
+    --radius: 12px;
+    --radius-lg: 16px;
+    --radius-xl: 24px;
+    --transition: all 0.2s ease;
+    --font-heading: 'Poppins', sans-serif;
+    --font-body: 'Open Sans', sans-serif;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: var(--font-body);
+    background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 50%, var(--accent) 100%);
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+    -webkit-font-smoothing: antialiased;
+}
+
+/* Login Container */
+.login-container {
+    background: var(--white);
+    border-radius: var(--radius-xl);
+    box-shadow: var(--shadow-xl);
+    width: 100%;
+    max-width: 440px;
+    padding: 48px 40px;
+    position: relative;
+    overflow: hidden;
+}
+
+.login-container::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, var(--accent), var(--accent-light));
+}
+
+/* Login Header */
+.login-header {
+    text-align: center;
+    margin-bottom: 40px;
+}
+
+.login-logo {
+    width: 80px;
+    height: auto;
+    margin: 0 auto 20px;
+    display: block;
+    transition: var(--transition);
+}
+
+.login-logo:hover {
+    transform: scale(1.05);
+}
+
+.login-header h1 {
+    font-family: var(--font-heading);
+    font-size: 1.75rem;
+    font-weight: 600;
+    color: var(--primary);
+    margin-bottom: 8px;
+}
+
+.login-header p {
+    color: var(--text-muted);
+    font-size: 0.95rem;
+}
+
+/* Login Form */
+.login-form {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.form-group label {
+    font-weight: 500;
+    color: var(--primary);
+    font-size: 0.95rem;
+}
+
+.form-group input {
+    width: 100%;
+    padding: 14px 16px;
+    border: 2px solid var(--border);
+    border-radius: var(--radius);
+    font-size: 1rem;
+    font-family: var(--font-body);
+    transition: var(--transition);
+    background: var(--bg);
+}
+
+.form-group input:focus {
+    outline: none;
+    border-color: var(--accent);
+    box-shadow: 0 0 0 4px rgba(3, 105, 161, 0.1);
+}
+
+.form-group input::placeholder {
+    color: var(--text-light);
+}
+
+/* Login Button */
+.btn-login {
+    width: 100%;
+    padding: 16px;
+    background: var(--accent);
+    color: var(--white);
+    border: none;
+    border-radius: var(--radius);
+    font-size: 1rem;
+    font-weight: 600;
+    font-family: var(--font-body);
+    cursor: pointer;
+    transition: var(--transition);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    margin-top: 8px;
+}
+
+.btn-login:hover {
+    background: var(--accent-dark);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px 0 rgba(3, 105, 161, 0.4);
+}
+
+.btn-login:active {
+    transform: translateY(0);
+}
+
+.btn-login svg {
+    width: 20px;
+    height: 20px;
+}
+
+/* Error Message */
+.error-message {
+    color: var(--danger);
+    text-align: center;
+    font-size: 0.9rem;
+    min-height: 20px;
+}
+
+/* Back to Site */
+.back-link {
+    display: block;
+    text-align: center;
+    margin-top: 24px;
+    color: var(--text-muted);
+    font-size: 0.9rem;
+}
+
+.back-link a {
+    color: var(--accent);
+    font-weight: 500;
+    text-decoration: none;
+    transition: var(--transition);
+}
+
+.back-link a:hover {
+    color: var(--accent-dark);
+    text-decoration: underline;
+}
+
+/* Responsive */
+@media (max-width: 480px) {
+    .login-container {
+        padding: 32px 24px;
+    }
+    
+    .login-header h1 {
+        font-size: 1.5rem;
+    }
+}
+
+/* Reduced Motion */
+@media (prefers-reduced-motion: reduce) {
+    * {
+        animation: none !important;
+        transition: none !important;
+    }
+}
