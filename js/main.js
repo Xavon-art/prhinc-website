@@ -133,7 +133,9 @@ if (form) {
         }
 
         const captchaCheck = document.getElementById('captchaCheck');
-        if (captchaCheck && !captchaCheck.checked) {
+        const turnstileResponse = document.querySelector('[name="cf-turnstile-response"]');
+        const hasCaptcha = (captchaCheck && captchaCheck.checked) || (turnstileResponse && turnstileResponse.value);
+        if (!hasCaptcha) {
             prhToast('Please verify that you are not a robot.', 'error');
             return;
         }
@@ -196,6 +198,17 @@ if (captchaCheck && submitBtn) {
     captchaCheck.addEventListener('change', () => {
         submitBtn.disabled = !captchaCheck.checked;
     });
+}
+
+// Cloudflare Turnstile callbacks
+function onTurnstileSuccess(token) {
+    const submitBtn = document.getElementById('submitBtn');
+    if (submitBtn) submitBtn.disabled = false;
+}
+
+function onTurnstileExpired() {
+    const submitBtn = document.getElementById('submitBtn');
+    if (submitBtn) submitBtn.disabled = true;
 }
 
 // Send Confirmation Email
