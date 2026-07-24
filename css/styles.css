@@ -452,17 +452,46 @@ img {
     color: var(--primary);
 }
 
-.expect-image {
+/* Carousel */
+.expect-carousel {
     position: relative;
-    border-radius: var(--radius-xl);
+    width: 100%;
+    height: 420px;
     overflow: hidden;
+    border-radius: var(--radius-xl);
     box-shadow: var(--shadow-xl);
+    mask-image: linear-gradient(to right, transparent 0%, black 15%, black 85%, transparent 100%);
+    -webkit-mask-image: linear-gradient(to right, transparent 0%, black 15%, black 85%, transparent 100%);
 }
 
-.expect-image img {
-    width: 100%;
-    height: 400px;
+.carousel-track {
+    display: flex;
+    gap: 16px;
+    animation: scrollCarousel 30s linear infinite;
+    width: max-content;
+}
+
+.carousel-track img {
+    width: 300px;
+    height: 420px;
     object-fit: cover;
+    border-radius: var(--radius-lg);
+    flex-shrink: 0;
+    transition: transform 0.3s ease, filter 0.3s ease;
+}
+
+.carousel-track img:hover {
+    transform: scale(1.03);
+    filter: brightness(1.1);
+}
+
+@keyframes scrollCarousel {
+    0% {
+        transform: translateX(0);
+    }
+    100% {
+        transform: translateX(-50%);
+    }
 }
 
 /* Team Section */
