@@ -184,12 +184,28 @@
                         referrerpolicy="no-referrer-when-downgrade"
                         title="PCIT Gymnasium Location Map">
                     </iframe>
-                    <a href="https://www.google.com/maps/dir/?api=1&destination=15.54609,121.08818" target="_blank" rel="noopener" class="btn btn-acent btn-full location-directions">
+                    <a href="https://www.google.com/maps/dir/?api=1&destination=15.54609,121.08818" target="_blank" rel="noopener" class="btn btn-acent btn-full location-directions" id="getDirectionsBtn">
                         <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                             <polygon points="3 11 22 2 13 21 11 13 3 11"></polygon>
                         </svg>
                         Get Directions
                     </a>
+                    <script>
+                    document.getElementById('getDirectionsBtn').addEventListener('click', function(e) {
+                        e.preventDefault();
+                        var dest = '15.54609,121.08818';
+                        if (navigator.geolocation) {
+                            navigator.geolocation.getCurrentPosition(function(pos) {
+                                var origin = pos.coords.latitude + ',' + pos.coords.longitude;
+                                window.open('https://www.google.com/maps/dir/' + origin + '/' + dest, '_blank');
+                            }, function() {
+                                window.open('https://www.google.com/maps/dir/?api=1&destination=' + dest, '_blank');
+                            });
+                        } else {
+                            window.open('https://www.google.com/maps/dir/?api=1&destination=' + dest, '_blank');
+                        }
+                    });
+                    </script>
                 </div>
             </div>
         </div>
