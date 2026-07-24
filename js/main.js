@@ -132,6 +132,12 @@ if (form) {
             return;
         }
 
+        const captchaCheck = document.getElementById('captchaCheck');
+        if (captchaCheck && !captchaCheck.checked) {
+            prhToast('Please verify that you are not a robot.', 'error');
+            return;
+        }
+
         const registration = {
             id: Date.now().toString(36) + Math.random().toString(36).substring(2),
             name: data.fullName,
@@ -180,6 +186,15 @@ if (form) {
                 `;
             }
         }
+    });
+}
+
+// CAPTCHA checkbox enables submit button
+const captchaCheck = document.getElementById('captchaCheck');
+const submitBtn = document.getElementById('submitBtn');
+if (captchaCheck && submitBtn) {
+    captchaCheck.addEventListener('change', () => {
+        submitBtn.disabled = !captchaCheck.checked;
     });
 }
 
