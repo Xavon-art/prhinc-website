@@ -2248,6 +2248,130 @@ img {
 }
 
 /* ========================
+   LOCATION SECTION
+   ======================== */
+
+.location-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 40px;
+    align-items: start;
+}
+
+.location-info {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.location-card {
+    background: var(--white);
+    padding: 24px;
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow);
+    border: 1px solid var(--border);
+    display: flex;
+    gap: 16px;
+    align-items: flex-start;
+    transition: var(--transition);
+}
+
+.location-card:hover {
+    box-shadow: var(--shadow-md);
+    border-color: var(--accent);
+}
+
+.location-icon {
+    flex-shrink: 0;
+    width: 48px;
+    height: 48px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(3, 105, 161, 0.08);
+    border-radius: 12px;
+    color: var(--accent);
+}
+
+.location-details h3 {
+    font-size: 1.1rem;
+    margin-bottom: 6px;
+    color: var(--primary);
+}
+
+.location-details p {
+    color: var(--text-muted);
+    font-size: 0.95rem;
+    margin-bottom: 4px;
+    line-height: 1.5;
+}
+
+.location-address {
+    line-height: 1.6 !important;
+}
+
+.location-coords {
+    font-family: 'Courier New', monospace;
+    font-size: 0.85rem !important;
+    color: var(--accent) !important;
+    font-weight: 600;
+    margin-top: 4px !important;
+}
+
+.location-plus {
+    font-size: 0.85rem !important;
+    color: var(--text-light) !important;
+}
+
+.location-time {
+    font-weight: 600;
+    color: var(--accent) !important;
+}
+
+.location-map {
+    position: sticky;
+    top: 100px;
+}
+
+.location-map iframe {
+    box-shadow: var(--shadow-lg);
+}
+
+.location-directions {
+    margin-top: 16px;
+    text-decoration: none;
+}
+
+.btn-acent {
+    background: var(--accent);
+    color: var(--white);
+    box-shadow: 0 4px 14px 0 rgba(3, 105, 161, 0.4);
+}
+
+.btn-acent:hover {
+    background: var(--accent-dark);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px 0 rgba(3, 105, 161, 0.5);
+}
+
+/* Responsive for location */
+@media (max-width: 1024px) {
+    .location-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .location-map {
+        position: static;
+    }
+}
+
+@media (max-width: 768px) {
+    .location-map iframe {
+        height: 300px;
+    }
+}
+
+/* ========================
    ACCESSIBILITY
    ======================== */
 
