@@ -1689,15 +1689,13 @@ img {
     display: grid;
     grid-template-columns: 2fr 1fr;
     gap: 12px;
-    position: sticky;
-    top: 100px;
 }
 
 .story-hero-main {
     border-radius: var(--radius-lg);
     overflow: hidden;
     box-shadow: var(--shadow-md);
-    min-height: 400px;
+    aspect-ratio: 4/5;
 }
 
 .story-hero-main img {
@@ -1715,6 +1713,7 @@ img {
 
 .story-hero-side img {
     width: 100%;
+    flex: 1;
     border-radius: var(--radius);
     box-shadow: var(--shadow);
     object-fit: cover;
@@ -1771,11 +1770,12 @@ img {
 
 .story-gallery img {
     width: 100%;
-    height: 200px;
+    aspect-ratio: 4/3;
     object-fit: cover;
     border-radius: var(--radius);
     box-shadow: var(--shadow-sm);
     transition: var(--transition);
+    cursor: pointer;
 }
 
 .story-gallery img:hover {
@@ -1794,13 +1794,14 @@ img {
     }
 
     .story-hero-images {
-        position: static;
         grid-template-columns: 1fr 1fr;
-        max-height: 350px;
+        max-height: 320px;
+        overflow: hidden;
     }
 
     .story-hero-main {
-        min-height: 280px;
+        aspect-ratio: auto;
+        min-height: 0;
     }
 
     .story-gallery {
@@ -1809,21 +1810,45 @@ img {
 }
 
 @media (max-width: 640px) {
-    .story-hero-images {
-        grid-template-columns: 1fr 1fr;
-        max-height: 280px;
+    .story-hero {
+        gap: 24px;
     }
 
-    .story-hero-main {
-        min-height: 200px;
+    .story-hero-images {
+        grid-template-columns: 1fr 1fr;
+        max-height: 240px;
     }
 
     .story-gallery {
-        grid-template-columns: repeat(2, 1fr);
+        display: flex;
+        overflow-x: auto;
+        scroll-snap-type: x mandatory;
+        gap: 10px;
+        margin-bottom: 32px;
+        padding-bottom: 8px;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    .story-gallery::-webkit-scrollbar {
+        height: 4px;
+    }
+
+    .story-gallery::-webkit-scrollbar-track {
+        background: var(--bg-alt);
+        border-radius: 4px;
+    }
+
+    .story-gallery::-webkit-scrollbar-thumb {
+        background: var(--accent);
+        border-radius: 4px;
     }
 
     .story-gallery img {
-        height: 150px;
+        min-width: 200px;
+        height: 160px;
+        aspect-ratio: auto;
+        scroll-snap-align: start;
+        flex-shrink: 0;
     }
 }
 
