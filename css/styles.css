@@ -514,6 +514,9 @@ img {
     display: inline-block;
     min-width: 80px;
     letter-spacing: 2px;
+    font-variant-numeric: tabular-nums;
+    transition: transform 0.1s ease;
+    will-change: transform;
 }
 
 .stat-label {

@@ -320,40 +320,50 @@ document.addEventListener('keydown', function (e) {
 });
 
 // ========================
-// COUNTER ANIMATION
+// COUNTER ANIMATION (Scrolling Clock)
 // ========================
-function animateCounter(el) {
+function animateCounter(el, delay) {
     const target = parseInt(el.getAttribute('data-target'), 10);
-    const duration = 2000;
-    const startTime = performance.now();
-    const suffix = el.getAttribute('data-suffix') || '+';
+    const suffix = el.getAttribute('data-suffix') || '';
+    const duration = 3000;
+    const startTime = performance.now() + delay;
 
-    function easeOutCubic(t) {
-        return 1 - Math.pow(1 - t, 3);
+    function easeOutExpo(t) {
+        return t === 1 ? 1 : 1 - Math.pow(2, -10 * t);
     }
 
     function update(currentTime) {
         const elapsed = currentTime - startTime;
+        if (elapsed < 0) {
+            el.textContent = '0' + suffix;
+            requestAnimationFrame(update);
+            return;
+        }
         const progress = Math.min(elapsed / duration, 1);
-        const eased = easeOutCubic(progress);
+        const eased = easeOutExpo(progress);
         const current = Math.floor(eased * target);
         el.textContent = current.toLocaleString() + suffix;
         if (progress < 1) {
             requestAnimationFrame(update);
+        } else {
+            el.textContent = target.toLocaleString() + suffix;
         }
     }
     requestAnimationFrame(update);
 }
 
-const counterEl = document.querySelector('.counter');
-if (counterEl) {
+const counterEls = document.querySelectorAll('.counter');
+if (counterEls.length > 0) {
     const observer = new IntersectionObserver((entries) => {
         entries.forEach(entry => {
             if (entry.isIntersecting) {
-                animateCounter(counterEl);
+                const allCounters = entry.target.querySelectorAll('.counter');
+                allCounters.forEach((el, i) => {
+                    animateCounter(el, i * 300);
+                });
                 observer.unobserve(entry.target);
             }
         });
     }, { threshold: 0.5 });
-    observer.observe(counterEl);
+    observer.observe(counterEls[0].closest('.hero-stats') || counterEls[0].parentElement.parentElement);
 }
