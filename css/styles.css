@@ -1689,13 +1689,16 @@ img {
     display: grid;
     grid-template-columns: 2fr 1fr;
     gap: 12px;
+    position: sticky;
+    top: 100px;
+    align-self: start;
 }
 
 .story-hero-main {
     border-radius: var(--radius-lg);
     overflow: hidden;
     box-shadow: var(--shadow-md);
-    aspect-ratio: 4/5;
+    aspect-ratio: 3/4;
 }
 
 .story-hero-main img {
@@ -1794,6 +1797,7 @@ img {
     }
 
     .story-hero-images {
+        position: static;
         grid-template-columns: 1fr 1fr;
         max-height: 320px;
         overflow: hidden;
@@ -1801,7 +1805,6 @@ img {
 
     .story-hero-main {
         aspect-ratio: auto;
-        min-height: 0;
     }
 
     .story-gallery {
