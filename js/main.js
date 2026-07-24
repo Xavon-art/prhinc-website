@@ -128,7 +128,7 @@ if (form) {
         });
 
         if (!isValid) {
-            alert('Please fill in all required fields.');
+            prhToast('Please fill in all required fields.', 'error');
             return;
         }
 
@@ -146,22 +146,27 @@ if (form) {
         const submitBtn = document.getElementById('submitBtn');
         if (submitBtn) {
             submitBtn.disabled = true;
-            submitBtn.textContent = 'Submitting...';
+            submitBtn.innerHTML = '<span class="prh-btn-spinner"></span> Submitting...';
         }
+
+        if (typeof prhShowLoading === 'function') prhShowLoading('Submitting your registration...');
 
         try {
             await saveRegistration(registration);
             const emailSent = await sendConfirmationEmail(registration);
 
+            if (typeof prhHideLoading === 'function') prhHideLoading();
+
             if (emailSent) {
-                alert('Thank you for your registration! A confirmation email has been sent to your email address.');
+                prhToast('Registration submitted! A confirmation email has been sent.', 'success');
             } else {
-                alert('Thank you for your registration! We will contact you soon.');
+                prhToast('Registration submitted! We will contact you soon.', 'success');
             }
 
             form.reset();
         } catch (error) {
-            alert('Registration saved. Please try again later.');
+            if (typeof prhHideLoading === 'function') prhHideLoading();
+            prhToast('Registration saved. We will contact you soon.', 'success');
             console.error('Error:', error);
         } finally {
             if (submitBtn) {

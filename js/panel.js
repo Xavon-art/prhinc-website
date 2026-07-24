@@ -309,7 +309,7 @@ async function updateRegistrationStatus(status) {
     await saveData();
     renderRegistrations();
     closeModals();
-    showToast(`Registration ${status} successfully`);
+    if (typeof prhToast === 'function') prhToast(`Registration ${status} successfully`, 'success');
 }
 
 // Class Actions
@@ -360,7 +360,7 @@ async function handleCreateClass(e) {
     renderClasses();
     closeModals();
     document.getElementById('createClassForm').reset();
-    showToast('Class created successfully');
+    if (typeof prhToast === 'function') prhToast('Class created successfully', 'success');
 }
 
 window.viewClass = function(id) {
@@ -400,18 +400,25 @@ window.removeTraineeFromClass = async function(classId, traineeId) {
     
     viewClass(classId);
     renderClasses();
-    showToast('Trainee removed from class');
+    if (typeof prhToast === 'function') prhToast('Trainee removed from class', 'success');
 };
 
 async function handleDeleteClass() {
     if (!currentClassId) return;
     
-    if (confirm('Are you sure you want to delete this class?')) {
+    var confirmed = await prhConfirm('Are you sure you want to delete this class? This action cannot be undone.', {
+        title: 'Delete Class',
+        confirmText: 'Delete',
+        cancelText: 'Cancel',
+        danger: true
+    });
+    
+    if (confirmed) {
         appData.classes = appData.classes.filter(c => c.id !== currentClassId);
         await saveData();
         renderClasses();
         closeModals();
-        showToast('Class deleted successfully');
+        if (typeof prhToast === 'function') prhToast('Class deleted successfully', 'success');
     }
 }
 
@@ -424,17 +431,11 @@ async function handleSendEmail(e) {
     const body = document.getElementById('emailBody').value;
     
     if (!recipientId) {
-        showToast('Please select a recipient', 'error');
+        if (typeof prhToast === 'function') prhToast('Please select a recipient', 'error');
         return;
     }
     
     const recipient = appData.registrations.find(r => r.id === recipientId);
-    
-    console.log('Email sent:', {
-        to: recipient.email,
-        subject,
-        body
-    });
     
     if (!appData.emails) appData.emails = [];
     appData.emails.push({
@@ -448,7 +449,7 @@ async function handleSendEmail(e) {
     
     await saveData();
     document.getElementById('emailForm').reset();
-    showToast('Email sent successfully');
+    if (typeof prhToast === 'function') prhToast('Email sent successfully', 'success');
 }
 
 // Message Actions
@@ -476,7 +477,7 @@ async function handleSendMessage(e) {
     await saveData();
     document.getElementById('messageForm').reset();
     closeModals();
-    showToast('Message sent successfully');
+    if (typeof prhToast === 'function') prhToast('Message sent successfully', 'success');
 }
 
 // Utility Functions
@@ -500,7 +501,7 @@ function showToast(message, type = 'success') {
 }
 
 function generateId() {
-    return Date.now().toString(36) + Math.random().toString(36).substr(2);
+    return Date.now().toString(36) + Math.random().toString(36).substring(2);
 }
 
 function formatDate(dateString) {
