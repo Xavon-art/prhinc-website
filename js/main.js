@@ -318,3 +318,42 @@ if (featureModal) {
 document.addEventListener('keydown', function (e) {
     if (e.key === 'Escape') closeFeatureModal();
 });
+
+// ========================
+// COUNTER ANIMATION
+// ========================
+function animateCounter(el) {
+    const target = parseInt(el.getAttribute('data-target'), 10);
+    const duration = 2000;
+    const startTime = performance.now();
+    const suffix = el.getAttribute('data-suffix') || '+';
+
+    function easeOutCubic(t) {
+        return 1 - Math.pow(1 - t, 3);
+    }
+
+    function update(currentTime) {
+        const elapsed = currentTime - startTime;
+        const progress = Math.min(elapsed / duration, 1);
+        const eased = easeOutCubic(progress);
+        const current = Math.floor(eased * target);
+        el.textContent = current.toLocaleString() + suffix;
+        if (progress < 1) {
+            requestAnimationFrame(update);
+        }
+    }
+    requestAnimationFrame(update);
+}
+
+const counterEl = document.querySelector('.counter');
+if (counterEl) {
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                animateCounter(counterEl);
+                observer.unobserve(entry.target);
+            }
+        });
+    }, { threshold: 0.5 });
+    observer.observe(counterEl);
+}

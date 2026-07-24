@@ -510,6 +510,12 @@ img {
     margin-bottom: 8px;
 }
 
+.stat-number.counter {
+    display: inline-block;
+    min-width: 80px;
+    letter-spacing: 2px;
+}
+
 .stat-label {
     color: var(--text-muted);
     font-size: 0.95rem;
