@@ -30,7 +30,7 @@ document.querySelectorAll('.nav-link').forEach(link => {
 // Close menu when clicking outside
 document.addEventListener('click', (e) => {
     if (navMenu && navMenu.classList.contains('active') &&
-        !navMenu.contains(e.target) && !navToggle.contains(e.target)) {
+        !navMenu.contains(e.target) && navToggle && !navToggle.contains(e.target)) {
         navMenu.classList.remove('active');
     }
 });
@@ -46,11 +46,14 @@ document.querySelectorAll('.faq-question').forEach(button => {
         // Close all other FAQ items
         document.querySelectorAll('.faq-item').forEach(item => {
             item.classList.remove('active');
+            const btn = item.querySelector('.faq-question');
+            if (btn) btn.setAttribute('aria-expanded', 'false');
         });
 
         // Toggle current item
         if (!isActive) {
             faqItem.classList.add('active');
+            button.setAttribute('aria-expanded', 'true');
         }
     });
 });
@@ -130,7 +133,7 @@ if (form) {
         }
 
         const registration = {
-            id: Date.now().toString(36) + Math.random().toString(36).substr(2),
+            id: Date.now().toString(36) + Math.random().toString(36).substring(2),
             name: data.fullName,
             email: data.email,
             phone: data.phone,

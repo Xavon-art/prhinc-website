@@ -233,6 +233,7 @@ img {
 /* Hero Section */
 .hero {
     min-height: 100vh;
+    min-height: 100dvh;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -644,17 +645,6 @@ img {
     color: var(--accent);
 }
 
-.feature-card h3 {
-    font-size: 1.25rem;
-    margin-bottom: 12px;
-    color: var(--primary);
-}
-
-.feature-card p {
-    color: var(--text-muted);
-    line-height: 1.7;
-}
-
 /* Expect Section */
 .expect-section {
     display: grid;
@@ -710,40 +700,6 @@ img {
     margin-top: 48px;
 }
 
-.benefit-card {
-    background: var(--white);
-    padding: 28px;
-    border-radius: var(--radius-lg);
-    box-shadow: var(--shadow);
-    border: 1px solid var(--border);
-    text-align: center;
-    transition: var(--transition);
-}
-
-.benefit-card:hover {
-    transform: translateY(-4px);
-    box-shadow: var(--shadow-md);
-}
-
-.benefit-card svg {
-    width: 36px;
-    height: 36px;
-    color: var(--accent);
-    margin-bottom: 12px;
-}
-
-.benefit-card h4 {
-    font-size: 1rem;
-    margin-bottom: 8px;
-    color: var(--primary);
-}
-
-.benefit-card p {
-    color: var(--text-muted);
-    font-size: 0.9rem;
-    line-height: 1.6;
-}
-
 /* Carousel */
 .expect-carousel {
     position: relative;
@@ -754,6 +710,11 @@ img {
     box-shadow: var(--shadow-xl);
     mask-image: linear-gradient(to right, transparent 0%, black 15%, black 85%, transparent 100%);
     -webkit-mask-image: linear-gradient(to right, transparent 0%, black 15%, black 85%, transparent 100%);
+}
+
+/* Pause old carousel on hover too */
+.expect-carousel:hover .carousel-track {
+    animation-play-state: paused;
 }
 
 .carousel-track {
@@ -786,6 +747,12 @@ img {
     }
 }
 
+/* Pause carousel on hover */
+.expect-carousel:hover .carousel-track,
+.carousel-wrapper:hover .carousel-track {
+    animation-play-state: paused;
+}
+
 /* Team Section */
 .team-grid {
     display: grid;
@@ -804,24 +771,9 @@ img {
 }
 
 .team-card:hover {
-    transform: translateY(-8px);
+    transform: translateY(-5px);
     box-shadow: var(--shadow-xl);
-}
-
-.team-avatar {
-    width: 120px;
-    height: 120px;
-    border-radius: 50%;
-    margin: 0 auto 20px;
-    overflow: hidden;
-    border: 4px solid var(--bg-alt);
-    box-shadow: var(--shadow-md);
-}
-
-.team-avatar img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
 
 .team-card h3 {
@@ -1031,8 +983,9 @@ img {
 }
 
 .success-card:hover {
-    transform: translateY(-8px);
+    transform: translateY(-5px);
     box-shadow: var(--shadow-xl);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
 
 .success-image {
@@ -1173,11 +1126,6 @@ img {
     font-size: 1.5rem;
     color: var(--white);
     margin-bottom: 16px;
-}
-
-.footer-brand p {
-    color: rgba(255, 255, 255, 0.7);
-    line-height: 1.7;
 }
 
 .footer-links h4 {
@@ -1442,6 +1390,15 @@ img {
     .stats-row {
         grid-template-columns: repeat(2, 1fr);
     }
+
+    .expect-carousel {
+        height: 320px;
+    }
+
+    .carousel-track img {
+        width: 250px;
+        height: 320px;
+    }
 }
 
 @media (max-width: 768px) {
@@ -1572,6 +1529,15 @@ img {
 
     .page-header {
         padding: 120px 20px 40px;
+    }
+
+    .expect-carousel {
+        height: 260px;
+    }
+
+    .carousel-track img {
+        width: 200px;
+        height: 260px;
     }
 }
 
@@ -2001,11 +1967,17 @@ img {
 
 /* Team Avatar SVG */
 .team-avatar {
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    margin: 0 auto 20px;
+    overflow: hidden;
     display: flex;
     align-items: center;
     justify-content: center;
     background: rgba(3, 105, 161, 0.08);
     border: 4px solid var(--bg-alt);
+    box-shadow: var(--shadow-md);
 }
 
 .team-avatar svg {
@@ -2274,6 +2246,33 @@ img {
         height: 250px;
     }
 }
+
+/* ========================
+   ACCESSIBILITY
+   ======================== */
+
+/* Focus visible for keyboard navigation */
+*:focus-visible {
+    outline: 3px solid var(--accent);
+    outline-offset: 2px;
+    border-radius: 4px;
+}
+
+.nav-link:focus-visible,
+.btn:focus-visible,
+.faq-question:focus-visible,
+.modal-close:focus-visible,
+.nav-toggle:focus-visible {
+    outline: 3px solid var(--accent);
+    outline-offset: 2px;
+}
+
+/* Remove default focus outline, replaced by focus-visible */
+*:focus:not(:focus-visible) {
+    outline: none;
+}
+
+/* Form inputs already have custom focus styles via box-shadow */
 
 /* Reduced Motion */
 @media (prefers-reduced-motion: reduce) {
