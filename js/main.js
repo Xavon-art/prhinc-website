@@ -134,7 +134,8 @@ if (form) {
 
         const captchaCheck = document.getElementById('captchaCheck');
         const turnstileResponse = document.querySelector('[name="cf-turnstile-response"]');
-        const hasCaptcha = (captchaCheck && captchaCheck.checked) || (turnstileResponse && turnstileResponse.value);
+        const recaptchaResponse = document.querySelector('[name="g-recaptcha-response"]');
+        const hasCaptcha = (captchaCheck && captchaCheck.checked) || (turnstileResponse && turnstileResponse.value) || (recaptchaResponse && recaptchaResponse.value);
         if (!hasCaptcha) {
             prhToast('Please verify that you are not a robot.', 'error');
             return;
@@ -207,6 +208,17 @@ function onTurnstileSuccess(token) {
 }
 
 function onTurnstileExpired() {
+    const submitBtn = document.getElementById('submitBtn');
+    if (submitBtn) submitBtn.disabled = true;
+}
+
+// Google reCAPTCHA callbacks
+function onRecaptchaSuccess(token) {
+    const submitBtn = document.getElementById('submitBtn');
+    if (submitBtn) submitBtn.disabled = false;
+}
+
+function onRecaptchaExpired() {
     const submitBtn = document.getElementById('submitBtn');
     if (submitBtn) submitBtn.disabled = true;
 }

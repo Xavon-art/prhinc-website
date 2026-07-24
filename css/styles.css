@@ -2416,7 +2416,7 @@ img {
     margin-bottom: 16px;
 }
 
-.cf-turnstile {
+.g-recaptcha {
     transform: scale(1);
     transform-origin: center;
 }
