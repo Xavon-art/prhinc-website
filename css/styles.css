@@ -1697,6 +1697,7 @@ img {
     border-radius: var(--radius-lg);
     overflow: hidden;
     box-shadow: var(--shadow-md);
+    min-height: 400px;
 }
 
 .story-hero-main img {
@@ -1704,7 +1705,6 @@ img {
     height: 100%;
     object-fit: cover;
     display: block;
-    min-height: 400px;
 }
 
 .story-hero-side {
@@ -1799,7 +1799,7 @@ img {
         max-height: 350px;
     }
 
-    .story-hero-main img {
+    .story-hero-main {
         min-height: 280px;
     }
 
@@ -1814,7 +1814,7 @@ img {
         max-height: 280px;
     }
 
-    .story-hero-main img {
+    .story-hero-main {
         min-height: 200px;
     }
 
