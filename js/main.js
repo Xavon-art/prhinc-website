@@ -1,7 +1,7 @@
 // EmailJS Configuration - REPLACE THESE VALUES
-const EMAILJS_PUBLIC_KEY = 'YOUR_PUBLIC_KEY_HERE';
+const EMAILJS_PUBLIC_KEY = 'cccXg_g73Uva0VhHy';
 const EMAILJS_SERVICE_ID = 'service_9x384tl';
-const EMAILJS_TEMPLATE_ID = 'YOUR_TEMPLATE_ID_HERE';
+const EMAILJS_TEMPLATE_ID = 'template_kn8r33a';
 
 // Initialize EmailJS
 if (typeof emailjs !== 'undefined' && EMAILJS_PUBLIC_KEY !== 'YOUR_PUBLIC_KEY_HERE') {
