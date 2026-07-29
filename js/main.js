@@ -246,48 +246,19 @@ async function sendConfirmationEmail(userData) {
     }
 }
 
-// Save registration to Seafile
+// Save registration to Turso
 async function saveRegistration(registration) {
-    const SEAFILE_TOKEN = '049ba3c36e01e10997b45e41ecb30c6492e283de';
-    const SEAFILE_REPO_ID = '4185aea9-389a-4d7e-96ce-88eee187e0c7';
-    const SEAFILE_SERVER = 'https://cloud.seafile.com';
-    const DATA_FILE = '/data.json';
-
-    let appData;
-    try {
-        const response = await fetch(
-            `${SEAFILE_SERVER}/api2/repos/${SEAFILE_REPO_ID}/file/?p=${DATA_FILE}`,
-            { headers: { 'Authorization': `Token ${SEAFILE_TOKEN}` } }
-        );
-
-        if (response.ok) {
-            const content = await response.text();
-            appData = JSON.parse(content);
-        } else {
-            appData = { registrations: [], classes: [], trainers: [] };
-        }
-    } catch (error) {
-        appData = { registrations: [], classes: [], trainers: [] };
-    }
-
-    appData.registrations.push(registration);
-
-    const linkResponse = await fetch(
-        `${SEAFILE_SERVER}/api2/repos/${SEAFILE_REPO_ID}/upload-link/`,
-        { headers: { 'Authorization': `Token ${SEAFILE_TOKEN}` } }
-    );
-    const uploadLink = await linkResponse.json();
-
-    const uploadFormData = new FormData();
-    uploadFormData.append('file', new Blob([JSON.stringify(appData, null, 2)], { type: 'application/json' }), 'data.json');
-    uploadFormData.append('parent_dir', '/');
-    uploadFormData.append('replace', '1');
-
-    await fetch(uploadLink, {
-        method: 'POST',
-        headers: { 'Authorization': `Token ${SEAFILE_TOKEN}` },
-        body: uploadFormData
-    });
+    const sql = 'INSERT INTO registrations (id, name, email, phone, address, education, registration_date, status) VALUES (?, ?, ?, ?, ?, ?, ?, ?)';
+    await tursoExecute(sql, [
+        registration.id,
+        registration.name,
+        registration.email,
+        registration.phone,
+        registration.address,
+        registration.education,
+        registration.registrationDate,
+        registration.status
+    ]);
 }
 
 // ========================

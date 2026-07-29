@@ -1,20 +1,4 @@
 // Panel JavaScript
-const SEAFILE_TOKEN = '049ba3c36e01e10997b45e41ecb30c6492e283de';
-const SEAFILE_REPO_ID = '4185aea9-389a-4d7e-96ce-88eee187e0c7';
-const SEAFILE_SERVER = 'https://cloud.seafile.com';
-const DATA_FILE = '/data.json';
-
-// Default data structure
-const defaultData = {
-    registrations: [],
-    classes: [],
-    trainers: [
-        { name: 'Mariz Garcia', email: 'mariz.garcia@prhinc.com' },
-        { name: 'Suman Kunder', email: 'suman.kunder@prhinc.com' },
-        { name: 'Jela Coloma', email: 'jela.coloma@prhinc.com' },
-        { name: 'Christine Azarcon', email: 'christine.azarcon@prhinc.com' }
-    ]
-};
 
 // State
 let appData = null;
@@ -112,46 +96,105 @@ function handleNavigation(e) {
 // Data Operations
 async function loadData() {
     try {
-        const response = await fetch(
-            `${SEAFILE_SERVER}/api2/repos/${SEAFILE_REPO_ID}/file/?p=${DATA_FILE}`,
-            { headers: { 'Authorization': `Token ${SEAFILE_TOKEN}` } }
-        );
-        
-        if (response.ok) {
-            const content = await response.text();
-            appData = JSON.parse(content);
-        } else {
-            appData = { ...defaultData };
-            await saveData();
-        }
-        
+        const registrations = await tursoSelect('SELECT * FROM registrations ORDER BY registration_date DESC');
+        const classes = await tursoSelect('SELECT * FROM classes ORDER BY created_at DESC');
+        const trainers = await tursoSelect('SELECT * FROM trainers');
+        const emails = await tursoSelect('SELECT * FROM emails ORDER BY sent_at DESC');
+        const messages = await tursoSelect('SELECT * FROM messages ORDER BY sent_at DESC');
+
+        appData = {
+            registrations: registrations.map(r => ({
+                id: r.id,
+                name: r.name,
+                email: r.email,
+                phone: r.phone,
+                address: r.address,
+                education: r.education,
+                registrationDate: r.registration_date,
+                status: r.status
+            })),
+            classes: classes.map(c => ({
+                id: c.id,
+                name: c.name,
+                startDate: c.start_date,
+                endDate: c.end_date,
+                trainer: c.trainer,
+                trainees: JSON.parse(c.trainees || '[]'),
+                createdAt: c.created_at
+            })),
+            trainers: trainers.map(t => ({ name: t.name, email: t.email })),
+            emails: emails.map(e => ({
+                id: e.id,
+                to: e.recipient,
+                toName: e.recipient_name,
+                subject: e.subject,
+                body: e.body,
+                sentAt: e.sent_at
+            })),
+            messages: messages.map(m => ({
+                id: m.id,
+                to: m.recipient,
+                toName: m.recipient_name,
+                content: m.content,
+                sentAt: m.sent_at
+            }))
+        };
+
         renderAll();
     } catch (error) {
         console.error('Error loading data:', error);
-        appData = { ...defaultData };
+        appData = { registrations: [], classes: [], trainers: [], emails: [], messages: [] };
         renderAll();
     }
 }
 
 async function saveData() {
     try {
-        const linkResponse = await fetch(
-            `${SEAFILE_SERVER}/api2/repos/${SEAFILE_REPO_ID}/upload-link/`,
-            { headers: { 'Authorization': `Token ${SEAFILE_TOKEN}` } }
-        );
-        const uploadLink = await linkResponse.json();
-        
-        const formData = new FormData();
-        formData.append('file', new Blob([JSON.stringify(appData, null, 2)], { type: 'application/json' }), 'data.json');
-        formData.append('parent_dir', '/');
-        formData.append('replace', '1');
-        
-        await fetch(uploadLink, {
-            method: 'POST',
-            headers: { 'Authorization': `Token ${SEAFILE_TOKEN}` },
-            body: formData
-        });
-        
+        const batches = [];
+
+        for (const reg of appData.registrations) {
+            batches.push({
+                type: 'execute',
+                stmt: {
+                    sql: 'INSERT OR REPLACE INTO registrations (id, name, email, phone, address, education, registration_date, status) VALUES (?, ?, ?, ?, ?, ?, ?, ?)',
+                    args: [reg.id, reg.name, reg.email, reg.phone, reg.address, reg.education, reg.registrationDate, reg.status]
+                }
+            });
+        }
+
+        for (const cls of appData.classes) {
+            batches.push({
+                type: 'execute',
+                stmt: {
+                    sql: 'INSERT OR REPLACE INTO classes (id, name, start_date, end_date, trainer, trainees, created_at) VALUES (?, ?, ?, ?, ?, ?, ?)',
+                    args: [cls.id, cls.name, cls.startDate, cls.endDate, cls.trainer, JSON.stringify(cls.trainees), cls.createdAt]
+                }
+            });
+        }
+
+        for (const email of appData.emails) {
+            batches.push({
+                type: 'execute',
+                stmt: {
+                    sql: 'INSERT OR REPLACE INTO emails (id, recipient, recipient_name, subject, body, sent_at) VALUES (?, ?, ?, ?, ?, ?)',
+                    args: [email.id, email.to, email.toName, email.subject, email.body, email.sentAt]
+                }
+            });
+        }
+
+        for (const msg of appData.messages) {
+            batches.push({
+                type: 'execute',
+                stmt: {
+                    sql: 'INSERT OR REPLACE INTO messages (id, recipient, recipient_name, content, sent_at) VALUES (?, ?, ?, ?, ?)',
+                    args: [msg.id, msg.to, msg.toName, msg.content, msg.sentAt]
+                }
+            });
+        }
+
+        if (batches.length > 0) {
+            await tursoBatch(batches);
+        }
         return true;
     } catch (error) {
         console.error('Error saving data:', error);
