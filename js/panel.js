@@ -21,7 +21,33 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('adminEmail').textContent = 'juliusmatro01@gmail.com';
     setupEventListeners();
     loadData();
+    startRealtimePolling();
 });
+
+let lastUpdateTime = null;
+let pollingInterval = null;
+
+function startRealtimePolling() {
+    if (pollingInterval) clearInterval(pollingInterval);
+    pollingInterval = setInterval(async () => {
+        const anyModalOpen = document.querySelectorAll('.modal:not(.hidden)').length > 0;
+        if (anyModalOpen) return;
+        await loadData();
+        lastUpdateTime = Date.now();
+        updateLastUpdated();
+    }, 10000);
+}
+
+function updateLastUpdated() {
+    const el = document.getElementById('lastUpdated');
+    if (!el) return;
+    if (!lastUpdateTime) { el.textContent = ''; return; }
+    const d = new Date(lastUpdateTime);
+    const h = d.getHours().toString().padStart(2, '0');
+    const m = d.getMinutes().toString().padStart(2, '0');
+    const s = d.getSeconds().toString().padStart(2, '0');
+    el.textContent = `Updated ${h}:${m}:${s}`;
+}
 
 // Event Listeners
 function setupEventListeners() {
@@ -141,6 +167,8 @@ async function loadData() {
         };
 
         renderAll();
+        lastUpdateTime = Date.now();
+        updateLastUpdated();
     } catch (error) {
         console.error('Error loading data:', error);
         appData = { registrations: [], classes: [], trainers: [], emails: [], messages: [] };
