@@ -1,6 +1,12 @@
 const TURSO_DB_URL = 'https://prhinc-website-xavon-art.aws-ap-south-1.turso.io/v2/pipeline';
 const TURSO_DB_TOKEN = 'eyJhbGciOiJFZERTQSIsInR5cCI6IkpXVCJ9.eyJhIjoicnciLCJpYXQiOjE3ODUyODcyNTIsImlkIjoiMDE5ZmFiNjktNGYwMS03NmJjLThmNWMtMWZjNzIwNzc2YTNiIiwia2lkIjoiVUdzR211TUFnNW1qNHYxaTZmWGtCNENFSUc2Tjc4TXlTRUprUC16T3E3QSIsInJpZCI6IjM3OGUxODI4LWQ2MmEtNDRhYi1hMDgwLTI3MGI4MjU1NzhkOCJ9.w6OdV49GHpjKdpIQGw2bu9eAgGxSt04Jw7bmfkDrB4q1YOmJsXnfTDun6vvuWQkHAQF-NoC1VSh2t6uIvWbGDQ';
 
+function tursoArg(value) {
+    if (value === null || value === undefined) return { type: 'null' };
+    if (typeof value === 'number') return Number.isInteger(value) ? { type: 'integer', value: String(value) } : { type: 'real', value: String(value) };
+    return { type: 'text', value: String(value) };
+}
+
 async function tursoQuery(sql, args = []) {
     const response = await fetch(TURSO_DB_URL, {
         method: 'POST',
@@ -11,7 +17,7 @@ async function tursoQuery(sql, args = []) {
         body: JSON.stringify({
             requests: [{
                 type: 'execute',
-                stmt: { sql, args }
+                stmt: { sql, args: args.map(tursoArg) }
             }]
         })
     });
