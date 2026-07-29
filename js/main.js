@@ -1,12 +1,5 @@
-// EmailJS Configuration - REPLACE THESE VALUES
-const EMAILJS_PUBLIC_KEY = '5iXC21YCopm6SoX41';
-const EMAILJS_SERVICE_ID = 'service_ytxgc1i';
-const EMAILJS_TEMPLATE_ID = 'template_5mjdcrn';
-
-// Initialize EmailJS
-if (typeof emailjs !== 'undefined' && EMAILJS_PUBLIC_KEY !== 'YOUR_PUBLIC_KEY_HERE') {
-    emailjs.init(EMAILJS_PUBLIC_KEY);
-}
+// Confirmation email endpoint
+const CONFIRMATION_API = '/send-confirmation';
 
 // ========================
 // NAVIGATION
@@ -225,19 +218,22 @@ function onRecaptchaExpired() {
 
 // Send Confirmation Email
 async function sendConfirmationEmail(userData) {
-    if (EMAILJS_PUBLIC_KEY === 'YOUR_PUBLIC_KEY_HERE') {
-        console.log('EmailJS not configured yet. Skipping email.');
-        return true;
-    }
-
     try {
-        await emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, {
-            name: userData.name,
-            email: userData.email,
-            phone: userData.phone,
-            address: userData.address,
-            education: userData.education
+        const resp = await fetch(CONFIRMATION_API, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                name: userData.name,
+                email: userData.email,
+                phone: userData.phone,
+                address: userData.address,
+                education: userData.education
+            })
         });
+        if (!resp.ok) {
+            const err = await resp.json();
+            throw new Error(err.error || 'Failed to send');
+        }
         console.log('Confirmation email sent successfully');
         return true;
     } catch (error) {
