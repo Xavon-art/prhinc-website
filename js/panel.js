@@ -27,7 +27,6 @@
         initRegistrations();
         initApproved();
         initClasses();
-        initTrainers();
         initUsers();
         initTrash();
         initEmails();
