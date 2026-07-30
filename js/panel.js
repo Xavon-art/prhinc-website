@@ -191,11 +191,11 @@
             const tr = document.createElement('tr');
             const statusClass = r.status === 'approved' ? 'status-approved' : r.status === 'rejected' ? 'status-rejected' : 'status-pending';
             tr.innerHTML = `
-                <td>${esc(r.first_name)} ${esc(r.last_name)}</td>
+                <td>${esc(r.name)}</td>
                 <td>${esc(r.email)}</td>
                 <td>${esc(r.phone || '')}</td>
-                <td>${esc(r.education_level || '')}</td>
-                <td>${r.created_at ? new Date(r.created_at).toLocaleDateString() : ''}</td>
+                <td>${esc(r.education || '')}</td>
+                <td>${r.registration_date ? new Date(r.registration_date).toLocaleDateString() : ''}</td>
                 <td>${esc(r.batch || '-')}</td>
                 <td><span class="status-badge ${statusClass}">${r.status}</span></td>
                 <td>
@@ -222,15 +222,14 @@
         setRegistrationId(r.id);
         const details = document.getElementById('registrationDetails');
         details.innerHTML = `
-            <div class="detail-row"><span class="detail-label">Name:</span><span class="detail-value">${esc(r.first_name)} ${esc(r.last_name)}</span></div>
+            <div class="detail-row"><span class="detail-label">Name:</span><span class="detail-value">${esc(r.name)}</span></div>
             <div class="detail-row"><span class="detail-label">Email:</span><span class="detail-value">${esc(r.email)}</span></div>
             <div class="detail-row"><span class="detail-label">Phone:</span><span class="detail-value">${esc(r.phone || '-')}</span></div>
-            <div class="detail-row"><span class="detail-label">Education:</span><span class="detail-value">${esc(r.education_level || '-')}</span></div>
-            <div class="detail-row"><span class="detail-label">School:</span><span class="detail-value">${esc(r.school || '-')}</span></div>
-            <div class="detail-row"><span class="detail-label">Course:</span><span class="detail-value">${esc(r.course || '-')}</span></div>
-            <div class="detail-row"><span class="detail-label">Status:</span><span class="detail-value">${r.status}</span></div>
+            <div class="detail-row"><span class="detail-label">Education:</span><span class="detail-value">${esc(r.education || '-')}</span></div>
+            <div class="detail-row"><span class="detail-label">Address:</span><span class="detail-value">${esc(r.address || '-')}</span></div>
             <div class="detail-row"><span class="detail-label">Batch:</span><span class="detail-value">${esc(r.batch || '-')}</span></div>
-            <div class="detail-row"><span class="detail-label">Registered:</span><span class="detail-value">${r.created_at ? new Date(r.created_at).toLocaleString() : '-'}</span></div>
+            <div class="detail-row"><span class="detail-label">Status:</span><span class="detail-value">${r.status}</span></div>
+            <div class="detail-row"><span class="detail-label">Registered:</span><span class="detail-value">${r.registration_date ? new Date(r.registration_date).toLocaleString() : '-'}</span></div>
         `;
         document.getElementById('assignBatchBtn').dataset.id = r.id;
         document.getElementById('deleteRegBtn').dataset.id = r.id;
@@ -411,7 +410,7 @@
                 tbody.innerHTML = '';
                 (c.trainees || []).forEach(t => {
                     const tr = document.createElement('tr');
-                    tr.innerHTML = `<td>${esc(t.first_name)} ${esc(t.last_name)}</td><td>${esc(t.email)}</td><td>${esc(t.phone || '')}</td>
+                    tr.innerHTML = `<td>${esc(t.name)}</td><td>${esc(t.email)}</td><td>${esc(t.phone || '')}</td>
                         <td><button class="btn-icon" onclick="alert('Remove trainee - not implemented')"><i class="fas fa-user-minus"></i></button></td>`;
                     tbody.appendChild(tr);
                 });
@@ -430,7 +429,7 @@
         cachedRegistrations.filter(r => r.status === 'approved').forEach(r => {
             const label = document.createElement('label');
             label.className = 'checkbox-label';
-            label.innerHTML = `<input type="checkbox" value="${r.id}"> ${esc(r.first_name)} ${esc(r.last_name)} (${esc(r.email)})`;
+            label.innerHTML = `<input type="checkbox" value="${r.id}"> ${esc(r.name)} (${esc(r.email)})`;
             container.appendChild(label);
         });
     }
@@ -615,7 +614,7 @@
                 `;
             } else {
                 tr.innerHTML = `
-                    <td>${esc(item.first_name)} ${esc(item.last_name)}</td>
+                    <td>${esc(item.name)}</td>
                     <td>${esc(item.email)}</td>
                     <td>${item.deleted_at ? new Date(item.deleted_at).toLocaleString() : ''}</td>
                     <td>${esc(item.deleted_by || '-')}</td>
@@ -701,7 +700,7 @@
                 data.registrations.forEach(r => {
                     const opt = document.createElement('option');
                     opt.value = r.email;
-                    opt.textContent = `${r.first_name} ${r.last_name} <${r.email}>`;
+                    opt.textContent = `${r.name} <${r.email}>`;
                     select.appendChild(opt);
                 });
             }
