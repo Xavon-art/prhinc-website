@@ -27,7 +27,7 @@ export async function onRequest(context) {
 
     const body = await request.json();
     const { action, id } = body;
-    const requester = body.username || body.created_by || body.deleted_by;
+    const requester = body.created_by || body.deleted_by || body.username;
 
     // Verify requester exists and is admin
     const admins = await tursoSelect(
