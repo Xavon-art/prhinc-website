@@ -30,7 +30,7 @@ export async function tursoSelect(sql, args = []) {
   const cols = result.cols.map(c => c.name);
   return result.rows.map(row => {
     const obj = {};
-    row.forEach((val, i) => { obj[cols[i]] = val; });
+    row.forEach((val, i) => { obj[cols[i]] = val.value !== undefined ? val.value : val; });
     return obj;
   });
 }
