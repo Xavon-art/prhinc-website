@@ -293,7 +293,7 @@
         const batch = document.getElementById('batchInput').value.trim() || document.getElementById('batchSelect').value;
         if (!batch) { showToast('Enter a batch name', 'error'); return; }
         try {
-            const res = await apiPost('/registrations', { action: 'batch', id, batch });
+            const res = await apiPost('/registrations', { action: 'batch', id, batch, username: currentUser.username });
             if (res.success) {
                 showToast('Batch assigned', 'success');
                 hideModal(document.getElementById('batchModal'));
@@ -630,7 +630,7 @@
                 const id = tr.querySelector('.restore-trash').dataset.id;
                 const t = tr.querySelector('.restore-trash').dataset.type;
                 const endpoint = t === 'users' ? '/users' : '/registrations';
-                const res = await apiPost(endpoint, { action: 'restore', id });
+                const res = await apiPost(endpoint, { action: 'restore', id, username: currentUser.username });
                 if (res.success) {
                     showToast('Restored', 'success');
                     loadTrash(currentTrashType);
@@ -650,7 +650,7 @@
     async function hardDeleteItem(id, type) {
         const endpoint = type === 'users' ? '/users' : '/registrations';
         try {
-            const res = await apiPost(endpoint, { action: 'hard_delete', id });
+            const res = await apiPost(endpoint, { action: 'hard_delete', id, username: currentUser.username });
             if (res.success) {
                 showToast('Permanently deleted', 'success');
                 loadTrash(currentTrashType);

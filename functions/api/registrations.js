@@ -35,7 +35,9 @@ export async function onRequest(context) {
 
     const body = await request.json();
     const { action, id } = body;
-    const username = body.username;
+    const username = body.username || body.updated_by || body.deleted_by;
+
+    if (!username) return json({ error: 'Username required' }, 400);
 
     // Verify user exists
     const users = await tursoSelect(
@@ -44,13 +46,10 @@ export async function onRequest(context) {
     if (users.length === 0) return json({ error: 'Unauthorized' }, 403);
     const isAdmin = users[0].role === 'admin';
 
-    if (action === 'approve') {
-      await tursoQuery("UPDATE registrations SET status = 'approved' WHERE id = ?", [id]);
-      return json({ success: true });
-    }
-
-    if (action === 'reject') {
-      await tursoQuery("UPDATE registrations SET status = 'rejected' WHERE id = ?", [id]);
+    if (action === 'update_status') {
+      const { status } = body;
+      if (!['approved', 'rejected'].includes(status)) return json({ error: 'Invalid status' }, 400);
+      await tursoQuery("UPDATE registrations SET status = ? WHERE id = ?", [status, id]);
       return json({ success: true });
     }
 
@@ -68,9 +67,14 @@ export async function onRequest(context) {
       return json({ success: true });
     }
 
-    if (action === 'hard-delete') {
+    if (action === 'hard_delete') {
       if (!isAdmin) return json({ error: 'Only admin can permanently delete' }, 403);
       await tursoQuery("DELETE FROM registrations WHERE id = ? AND deleted_at IS NOT NULL", [id]);
+      return json({ success: true });
+    }
+
+    if (action === 'restore') {
+      await tursoQuery("UPDATE registrations SET deleted_at = NULL, deleted_by = NULL WHERE id = ?", [id]);
       return json({ success: true });
     }
 
