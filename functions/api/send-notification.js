@@ -17,14 +17,14 @@ export async function onRequest(context) {
     let subject, message;
     if (type === 'approved') {
       subject = 'Application Approved - Palayan Recruitment Hub Inc.';
-      message = `Congratulations ${name}! Your application for free call center training is approved! Just wait for about 2 to 3 business days so that the team will give you a schedule for your batch. Please make sure you will open your line during business hours.`;
+      message = `Dear ${name},\n\nGreetings from Palayan Recruitment Hub Inc.!\n\nWe are pleased to inform you that your application for our Free Call Center Training Program has been carefully reviewed and evaluated. After thorough consideration, we are delighted to inform you that your application has been APPROVED.\n\nCongratulations! You have been selected to participate in this prestigious training program. Please wait for about 2 to 3 business days as our team will be coordinating with you to provide your schedule and batch assignment. Rest assured that we will do our best to accommodate you in the most suitable batch.\n\nTo ensure that you will receive all important updates and announcements, please make sure that your contact number is open and accessible during business hours (Monday to Friday, 8:00 AM to 5:00 PM). Our team will be reaching out to you through the contact information you have provided.\n\nOnce again, congratulations and welcome to Palayan Recruitment Hub Inc.! We are excited to have you on board and we look forward to seeing you succeed in your call center career journey.\n\nShould you have any questions or concerns, please do not hesitate to reach out to us. We are here to support you every step of the way.\n\nBest regards,\nPalayan Recruitment Hub Inc.\nManagement Team`;
     } else if (type === 'rejected') {
       subject = 'Application Status Update - Palayan Recruitment Hub Inc.';
-      message = `Dear ${name},\n\nWe sincerely appreciate your interest in our free call center training program. After careful review, we regret to inform you that your application has not been approved at this time.\n\n`;
+      message = `Dear ${name},\n\nGreetings from Palayan Recruitment Hub Inc.!\n\nWe sincerely thank you for taking the time to apply for our Free Call Center Training Program. We truly appreciate the interest you have shown in this opportunity and the effort you put into your application.\n\nAfter a careful and thorough review of your application, we regret to inform you that your application has not been approved at this time.\n\n`;
       if (reason) {
-        message += `Reason: ${reason}\n\n`;
+        message += `Below is the reason for this decision:\n\n${reason}\n\n`;
       }
-      message += `We are looking forward to see you again in our future programs. Thank you for your understanding.\n\nBest regards,\nPalayan Recruitment Hub Inc.`;
+      message += `Please know that this decision does not diminish the value of your interest and effort. We encourage you to continue pursuing your goals and to consider applying again in the future when new opportunities become available.\n\nWe are looking forward to seeing you again in our future programs and initiatives. Your determination and willingness to grow are qualities that we truly admire.\n\nThank you once again for choosing Palayan Recruitment Hub Inc. We wish you all the best in your future endeavors.\n\nWith warm regards,\nPalayan Recruitment Hub Inc.\nManagement Team`;
     } else {
       return new Response(JSON.stringify({ error: 'Invalid type' }), {
         status: 400, headers: { 'Content-Type': 'application/json' }
