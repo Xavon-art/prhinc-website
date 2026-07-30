@@ -15,10 +15,10 @@ export async function onRequest(context) {
       });
     }
 
-    const publicKey = env.EMAILJS_PUBLIC_KEY || 'cccXg_g73Uva0VhHy';
-    const privateKey = env.EMAILJS_PRIVATE_KEY || 'PkZvs-IHDwHPOOqkIxufL';
-    const serviceId = env.EMAILJS_SERVICE_ID || 'service_9x384tl';
-    const templateId = env.EMAILJS_TEMPLATE_ID || 'template_prhinc';
+    const publicKey = env.EMAILJS_PUBLIC_KEY || '5iXC21YCopm6SoX41';
+    const privateKey = env.EMAILJS_PRIVATE_KEY || '8ZTAAG2_IH4M0758Ofi88';
+    const serviceId = env.EMAILJS_SERVICE_ID || 'service_ytxgc1i';
+    const templateId = env.EMAILJS_TEMPLATE_ID || 'template_5mjdcrn';
 
     const resp = await fetch('https://api.emailjs.com/api/v1.0/email/send', {
       method: 'POST',
