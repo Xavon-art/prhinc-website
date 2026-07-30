@@ -47,9 +47,13 @@ export async function onRequest(context) {
     const isAdmin = users[0].role === 'admin';
 
     if (action === 'update_status') {
-      const { status } = body;
+      const { status, rejection_reason } = body;
       if (!['approved', 'rejected'].includes(status)) return json({ error: 'Invalid status' }, 400);
-      await tursoQuery("UPDATE registrations SET status = ? WHERE id = ?", [status, id]);
+      if (status === 'rejected') {
+        await tursoQuery("UPDATE registrations SET status = ?, rejection_reason = ? WHERE id = ?", [status, rejection_reason || null, id]);
+      } else {
+        await tursoQuery("UPDATE registrations SET status = ? WHERE id = ?", [status, id]);
+      }
       return json({ success: true });
     }
 
@@ -75,6 +79,12 @@ export async function onRequest(context) {
 
     if (action === 'restore') {
       await tursoQuery("UPDATE registrations SET deleted_at = NULL, deleted_by = NULL WHERE id = ?", [id]);
+      return json({ success: true });
+    }
+
+    if (action === 'set_client') {
+      const { client } = body;
+      await tursoQuery("UPDATE registrations SET client = ? WHERE id = ?", [client || null, id]);
       return json({ success: true });
     }
 

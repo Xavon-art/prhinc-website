@@ -24,6 +24,10 @@
                     <i class="fas fa-layer-group"></i>
                     <span>Classes / Batches</span>
                 </a>
+                <a href="#" class="nav-item" data-section="approved">
+                    <i class="fas fa-check-circle"></i>
+                    <span>Approved Trainees</span>
+                </a>
                 <a href="#" class="nav-item" data-section="trainers">
                     <i class="fas fa-chalkboard-teacher"></i>
                     <span>Trainers</span>
@@ -96,6 +100,32 @@
                 <div id="noRegistrations" class="no-data">
                     <i class="fas fa-inbox" style="font-size:64px;opacity:0.4;margin-bottom:20px;display:block"></i>
                     <p>No registrations found</p>
+                </div>
+            </section>
+
+            <!-- Approved Trainees Section -->
+            <section id="approvedSection" class="content-section">
+                <div class="section-header">
+                    <h2>Approved Trainees</h2>
+                </div>
+                <div class="table-container">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Name</th>
+                                <th>Email</th>
+                                <th>Phone</th>
+                                <th>Batch</th>
+                                <th>Client</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="approvedTable"></tbody>
+                    </table>
+                </div>
+                <div id="noApproved" class="no-data">
+                    <i class="fas fa-check-circle" style="font-size:64px;opacity:0.4;margin-bottom:20px;display:block"></i>
+                    <p>No approved trainees yet</p>
                 </div>
             </section>
 
@@ -328,6 +358,24 @@
                     <button type="submit" class="btn-primary">Create</button>
                 </div>
             </form>
+        </div>
+    </div>
+
+    <!-- Rejection Reason Modal -->
+    <div id="rejectModal" class="modal hidden">
+        <div class="modal-content" style="max-width:480px">
+            <div class="modal-header">
+                <h2>Rejection Reason</h2>
+                <button class="modal-close">&times;</button>
+            </div>
+            <div style="padding:24px">
+                <p style="margin-bottom:12px;line-height:1.5">Enter the reason for rejection. The applicant will receive an email with this reason.</p>
+                <textarea id="rejectReason" class="form-control" rows="5" placeholder="Type the reason here..." style="resize:vertical"></textarea>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-secondary modal-close">Cancel</button>
+                <button id="confirmRejectBtn" class="btn-danger">Send Rejection</button>
+            </div>
         </div>
     </div>
 

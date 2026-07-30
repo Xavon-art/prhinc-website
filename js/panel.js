@@ -6,15 +6,15 @@
     let cachedUsers = [];
     let currentTrashType = 'registrations';
     let confirmCallback = null;
+    let currentRegId = null;
+    let currentBatchRegId = null;
+    let pendingRejectId = null;
 
     const user = (() => {
         try { return JSON.parse(sessionStorage.getItem('prhinc_user')); } catch { return null; }
     })();
 
-    if (!user) {
-        window.location.href = '/manage';
-        return;
-    }
+    if (!user) { window.location.href = '/manage'; return; }
     currentUser = user;
 
     document.addEventListener('DOMContentLoaded', () => {
@@ -25,12 +25,14 @@
         initNavigation();
         initLogout();
         initRegistrations();
+        initApproved();
         initClasses();
         initTrainers();
         initUsers();
         initTrash();
         initEmails();
         initConfirmModal();
+        initRejectModal();
         loadSection('registrations');
     });
 
@@ -50,13 +52,19 @@
     function loadSection(section) {
         currentSection = section;
         document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
-        document.querySelector(`.nav-item[data-section="${section}"]`).classList.add('active');
+        const navItem = document.querySelector(`.nav-item[data-section="${section}"]`);
+        if (navItem) navItem.classList.add('active');
         document.querySelectorAll('.content-section').forEach(s => s.classList.remove('active'));
         const el = document.getElementById(section + 'Section');
         if (el) el.classList.add('active');
-        document.getElementById('pageTitle').textContent = section.charAt(0).toUpperCase() + section.slice(1);
+        const titles = {
+            registrations: 'Registrations', approved: 'Approved Trainees', classes: 'Classes / Batches',
+            trainers: 'Trainers', users: 'Users', trash: 'Trash', emails: 'Emails'
+        };
+        document.getElementById('pageTitle').textContent = titles[section] || section;
 
         if (section === 'registrations') loadRegistrations();
+        else if (section === 'approved') loadApproved();
         else if (section === 'users') loadUsers();
         else if (section === 'trash') loadTrash(currentTrashType);
         else if (section === 'classes') loadClasses();
@@ -76,26 +84,30 @@
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(data)
         });
-        return res.json();
+        const result = await res.json();
+        if (!res.ok) throw new Error(result.error || 'Request failed');
+        return result;
     }
 
     async function apiGet(endpoint) {
         const res = await fetch(API + endpoint);
-        return res.json();
+        const result = await res.json();
+        if (!res.ok) throw new Error(result.error || 'Request failed');
+        return result;
     }
 
-    // ---------- TOAST ----------
     function showToast(msg, type) {
+        if (window.prhToast) { window.prhToast(msg, type); return; }
         const existing = document.querySelector('.toast-container');
         if (existing) existing.remove();
         const container = document.createElement('div');
         container.className = 'toast-container';
-        container.innerHTML = `<div class="toast toast-${type}"><i class="fas ${type === 'success' ? 'fa-check-circle' : type === 'error' ? 'fa-exclamation-circle' : 'fa-info-circle'}"></i> ${msg}</div>`;
+        container.innerHTML = `<div class="toast toast-${type}"><i class="fas ${type === 'success' ? 'fa-check-circle' : type === 'error' ? 'fa-exclamation-circle' : 'fa-info-circle'}"></i> ${esc(msg)}</div>`;
         document.body.appendChild(container);
         setTimeout(() => container.remove(), 3500);
     }
 
-    // ---------- CONFIRM MODAL ----------
+    // ---------- CONFIRM MODAL (type "delete") ----------
     function initConfirmModal() {
         const modal = document.getElementById('confirmModal');
         const input = document.getElementById('confirmInput');
@@ -125,9 +137,7 @@
         closeBtns.forEach(el => el.addEventListener('click', cancelConfirm));
         modal.addEventListener('click', e => { if (e.target === modal) cancelConfirm(); });
         document.addEventListener('keydown', function handler(e) {
-            if (e.key === 'Escape' && !modal.classList.contains('hidden')) {
-                cancelConfirm();
-            }
+            if (e.key === 'Escape' && !modal.classList.contains('hidden')) cancelConfirm();
         });
     }
 
@@ -142,14 +152,99 @@
         showModal(modal);
     }
 
+    // ---------- REJECT REASON MODAL ----------
+    function initRejectModal() {
+        const modal = document.getElementById('rejectModal');
+        const closeBtns = modal.querySelectorAll('.modal-close');
+        document.getElementById('confirmRejectBtn').addEventListener('click', async () => {
+            const reason = document.getElementById('rejectReason').value.trim();
+            if (!reason) { showToast('Please enter a rejection reason', 'error'); return; }
+            await doReject(pendingRejectId, reason);
+            pendingRejectId = null;
+            hideModal(modal);
+        });
+        closeBtns.forEach(el => el.addEventListener('click', () => {
+            pendingRejectId = null;
+            hideModal(modal);
+        }));
+        modal.addEventListener('click', e => { if (e.target === modal) { pendingRejectId = null; hideModal(modal); } });
+    }
+
+    function showRejectModal(id) {
+        pendingRejectId = id;
+        document.getElementById('rejectReason').value = '';
+        showModal(document.getElementById('rejectModal'));
+    }
+
     function showModal(el) { el.classList.remove('hidden'); el.style.display = 'flex'; }
     function hideModal(el) { el.classList.add('hidden'); el.style.display = ''; }
+
+    // ---------- APPROVE / REJECT ----------
+    async function doApprove(id) {
+        try {
+            const res = await apiPost('/registrations', {
+                action: 'update_status', id, status: 'approved', updated_by: currentUser.username
+            });
+            if (res.success) {
+                showToast('Registration approved', 'success');
+                hideModal(document.getElementById('registrationModal'));
+                loadRegistrations();
+                sendNotification(id, 'approved');
+            }
+        } catch (e) {
+            showToast(e.message || 'Failed to approve', 'error');
+        }
+    }
+
+    async function doReject(id, reason) {
+        try {
+            const res = await apiPost('/registrations', {
+                action: 'update_status', id, status: 'rejected',
+                rejection_reason: reason, updated_by: currentUser.username
+            });
+            if (res.success) {
+                showToast('Registration rejected', 'success');
+                hideModal(document.getElementById('registrationModal'));
+                loadRegistrations();
+                sendNotification(id, 'rejected', reason);
+            }
+        } catch (e) {
+            showToast(e.message || 'Failed to reject', 'error');
+        }
+    }
+
+    async function sendNotification(id, type, reason) {
+        const reg = cachedRegistrations.find(r => r.id === id);
+        if (!reg) return;
+        try {
+            await apiPost('/send-notification', {
+                name: reg.name, email: reg.email, type, reason: reason || ''
+            });
+            showToast(type === 'approved' ? 'Approval email sent' : 'Rejection email sent', 'success');
+        } catch (e) {
+            showToast('Status updated but email failed: ' + (e.message || 'unknown error'), 'warning');
+        }
+    }
 
     // ---------- REGISTRATIONS ----------
     function initRegistrations() {
         document.getElementById('statusFilter').addEventListener('change', () => loadRegistrations());
-        document.getElementById('acceptBtn').addEventListener('click', () => updateRegistrationStatus('approved'));
-        document.getElementById('rejectBtn').addEventListener('click', () => updateRegistrationStatus('rejected'));
+        document.getElementById('acceptBtn').addEventListener('click', async () => {
+            if (!currentRegId) return;
+            if (window.prhConfirm) {
+                const ok = await window.prhConfirm('Are you sure you want to approve this registration?', {
+                    title: 'Confirm Approval', confirmText: 'Yes, Approve', cancelText: 'Cancel', confirmClass: 'prh-btn--success'
+                });
+                if (!ok) return;
+            } else if (!confirm('Are you sure you want to approve this registration?')) return;
+            hideModal(document.getElementById('registrationModal'));
+            await doApprove(currentRegId);
+        });
+        document.getElementById('rejectBtn').addEventListener('click', () => {
+            if (!currentRegId) return;
+            hideModal(document.getElementById('registrationModal'));
+            showRejectModal(currentRegId);
+        });
         document.getElementById('saveBatchBtn').addEventListener('click', saveBatch);
         document.getElementById('deleteRegBtn').addEventListener('click', () => {
             const id = document.getElementById('deleteRegBtn').dataset.id;
@@ -166,14 +261,10 @@
         const filter = document.getElementById('statusFilter').value;
         try {
             const data = await apiGet(`/registrations?status=${filter}`);
-            if (data.success) {
-                cachedRegistrations = data.registrations || [];
-                renderRegistrations(cachedRegistrations);
-            } else {
-                showToast(data.error || 'Failed to load', 'error');
-            }
+            cachedRegistrations = data.registrations || [];
+            renderRegistrations(cachedRegistrations);
         } catch (e) {
-            showToast('Network error', 'error');
+            showToast(e.message || 'Failed to load', 'error');
         }
     }
 
@@ -181,11 +272,7 @@
         const tbody = document.getElementById('registrationsTable');
         const noData = document.getElementById('noRegistrations');
         tbody.innerHTML = '';
-        if (!rows.length) {
-            tbody.innerHTML = '';
-            noData.style.display = 'block';
-            return;
-        }
+        if (!rows.length) { noData.style.display = 'block'; return; }
         noData.style.display = 'none';
         rows.forEach(r => {
             const tr = document.createElement('tr');
@@ -205,15 +292,20 @@
                 </td>
             `;
             tbody.appendChild(tr);
-
             tr.querySelector('.view-reg').addEventListener('click', () => openRegistrationModal(r));
-            tr.querySelector('.approve-reg').addEventListener('click', () => {
+            tr.querySelector('.approve-reg').addEventListener('click', async () => {
+                if (window.prhConfirm) {
+                    const ok = await window.prhConfirm('Are you sure you want to approve this registration?', {
+                        title: 'Confirm Approval', confirmText: 'Yes, Approve', cancelText: 'Cancel', confirmClass: 'prh-btn--success'
+                    });
+                    if (!ok) return;
+                } else if (!confirm('Are you sure you want to approve this registration?')) return;
                 setRegistrationId(r.id);
-                updateRegistrationStatus('approved');
+                await doApprove(r.id);
             });
             tr.querySelector('.reject-reg').addEventListener('click', () => {
                 setRegistrationId(r.id);
-                updateRegistrationStatus('rejected');
+                showRejectModal(r.id);
             });
         });
     }
@@ -236,41 +328,33 @@
         showModal(document.getElementById('registrationModal'));
     }
 
-    let currentRegId = null;
     function setRegistrationId(id) { currentRegId = id; }
-
-    async function updateRegistrationStatus(status) {
-        if (!currentRegId) return;
-        try {
-            const res = await apiPost('/registrations', { action: 'update_status', id: currentRegId, status, updated_by: currentUser.username });
-            if (res.success) {
-                showToast(`Registration ${status}`, 'success');
-                hideModal(document.getElementById('registrationModal'));
-                loadRegistrations();
-            } else {
-                showToast(res.error || 'Failed', 'error');
-            }
-        } catch (e) {
-            showToast('Network error', 'error');
-        }
-    }
 
     async function softDeleteRegistration(id) {
         try {
-            const res = await apiPost('/registrations', { action: 'delete', id, deleted_by: currentUser.username });
-            if (res.success) {
-                showToast('Moved to trash', 'success');
-                hideModal(document.getElementById('registrationModal'));
-                loadRegistrations();
-            } else {
-                showToast(res.error || 'Failed to delete', 'error');
-            }
+            await apiPost('/registrations', { action: 'delete', id, deleted_by: currentUser.username });
+            showToast('Moved to trash', 'success');
+            hideModal(document.getElementById('registrationModal'));
+            loadRegistrations();
         } catch (e) {
-            showToast('Network error', 'error');
+            showToast(e.message || 'Failed to delete', 'error');
         }
     }
 
-    let currentBatchRegId = null;
+    async function saveBatch() {
+        const id = currentBatchRegId;
+        const batch = document.getElementById('batchInput').value.trim() || document.getElementById('batchSelect').value;
+        if (!batch) { showToast('Enter a batch name', 'error'); return; }
+        try {
+            await apiPost('/registrations', { action: 'batch', id, batch, username: currentUser.username });
+            showToast('Batch assigned', 'success');
+            hideModal(document.getElementById('batchModal'));
+            loadRegistrations();
+        } catch (e) {
+            showToast(e.message || 'Failed to assign batch', 'error');
+        }
+    }
+
     function openBatchModal(id) {
         currentBatchRegId = id;
         document.getElementById('batchInput').value = '';
@@ -288,22 +372,55 @@
         showModal(document.getElementById('batchModal'));
     }
 
-    async function saveBatch() {
-        const id = currentBatchRegId;
-        const batch = document.getElementById('batchInput').value.trim() || document.getElementById('batchSelect').value;
-        if (!batch) { showToast('Enter a batch name', 'error'); return; }
+    // ---------- APPROVED TRAINEES ----------
+    function initApproved() {
+        // no init needed
+    }
+
+    async function loadApproved() {
         try {
-            const res = await apiPost('/registrations', { action: 'batch', id, batch, username: currentUser.username });
-            if (res.success) {
-                showToast('Batch assigned', 'success');
-                hideModal(document.getElementById('batchModal'));
-                loadRegistrations();
-            } else {
-                showToast(res.error || 'Failed to assign batch', 'error');
-            }
+            const data = await apiGet('/registrations?status=approved');
+            const approved = data.registrations || [];
+            renderApproved(approved);
         } catch (e) {
-            showToast('Network error', 'error');
+            showToast(e.message || 'Failed to load approved trainees', 'error');
         }
+    }
+
+    function renderApproved(rows) {
+        const tbody = document.getElementById('approvedTable');
+        const noData = document.getElementById('noApproved');
+        tbody.innerHTML = '';
+        if (!rows.length) { noData.style.display = 'block'; return; }
+        noData.style.display = 'none';
+        rows.forEach(r => {
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+                <td>${esc(r.name)}</td>
+                <td>${esc(r.email)}</td>
+                <td>${esc(r.phone || '')}</td>
+                <td>${esc(r.batch || '-')}</td>
+                <td><input type="text" class="client-input" data-id="${r.id}" value="${esc(r.client || '')}" placeholder="Assign client..." style="width:100%;padding:6px 10px;border:1px solid #d1d5db;border-radius:6px;font-size:13px"></td>
+                <td>
+                    <button class="btn-icon view-reg" data-id="${r.id}" title="View"><i class="fas fa-eye"></i></button>
+                    <button class="btn-icon save-client" data-id="${r.id}" title="Save Client"><i class="fas fa-save" style="color:var(--primary)"></i></button>
+                    <button class="btn-icon reject-reg" data-id="${r.id}" title="Reject"><i class="fas fa-times" style="color:var(--danger)"></i></button>
+                </td>
+            `;
+            tbody.appendChild(tr);
+            tr.querySelector('.view-reg').addEventListener('click', () => openRegistrationModal(r));
+            tr.querySelector('.save-client').addEventListener('click', async () => {
+                const input = tr.querySelector('.client-input');
+                const client = input.value.trim();
+                try {
+                    await apiPost('/registrations', { action: 'set_client', id: r.id, client, username: currentUser.username });
+                    showToast('Client assigned', 'success');
+                } catch (e) {
+                    showToast(e.message || 'Failed to save client', 'error');
+                }
+            });
+            tr.querySelector('.reject-reg').addEventListener('click', () => showRejectModal(r.id));
+        });
     }
 
     // ---------- CLASSES ----------
@@ -326,16 +443,12 @@
                 trainees: [...document.querySelectorAll('#traineeCheckboxes input:checked')].map(cb => cb.value)
             };
             try {
-                const res = await apiPost('/classes', { action: 'create', ...data });
-                if (res.success) {
-                    showToast('Class created', 'success');
-                    hideModal(document.getElementById('createClassModal'));
-                    loadClasses();
-                } else {
-                    showToast(res.error || 'Failed', 'error');
-                }
+                await apiPost('/classes', { action: 'create', ...data });
+                showToast('Class created', 'success');
+                hideModal(document.getElementById('createClassModal'));
+                loadClasses();
             } catch (e) {
-                showToast('Network error', 'error');
+                showToast(e.message || 'Failed', 'error');
             }
         });
 
@@ -344,16 +457,12 @@
             if (!id) return;
             showConfirmModal('Delete Class', 'Type <strong>delete</strong> to permanently remove this class:', async () => {
                 try {
-                    const res = await apiPost('/classes', { action: 'delete', id });
-                    if (res.success) {
-                        showToast('Class deleted', 'success');
-                        hideModal(document.getElementById('viewClassModal'));
-                        loadClasses();
-                    } else {
-                        showToast(res.error || 'Failed', 'error');
-                    }
+                    await apiPost('/classes', { action: 'delete', id });
+                    showToast('Class deleted', 'success');
+                    hideModal(document.getElementById('viewClassModal'));
+                    loadClasses();
                 } catch (e) {
-                    showToast('Network error', 'error');
+                    showToast(e.message || 'Failed', 'error');
                 }
             });
         });
@@ -362,14 +471,10 @@
     async function loadClasses() {
         try {
             const data = await apiGet('/classes');
-            if (data.success) {
-                classes = data.classes || [];
-                renderClasses(classes);
-            } else {
-                showToast(data.error || 'Failed to load classes', 'error');
-            }
+            classes = data.classes || [];
+            renderClasses(classes);
         } catch (e) {
-            showToast('Network error', 'error');
+            showToast(e.message || 'Failed to load classes', 'error');
         }
     }
 
@@ -377,10 +482,7 @@
         const container = document.getElementById('classesList');
         const noData = document.getElementById('noClasses');
         container.innerHTML = '';
-        if (!rows.length) {
-            noData.style.display = 'block';
-            return;
-        }
+        if (!rows.length) { noData.style.display = 'block'; return; }
         noData.style.display = 'none';
         rows.forEach(c => {
             const card = document.createElement('div');
@@ -435,34 +537,25 @@
     }
 
     // ---------- TRAINERS ----------
-    let trainers = [];
     async function loadTrainers() {
         try {
             const data = await apiGet('/trainers');
-            if (data.success) {
-                trainers = data.trainers || [];
-                renderTrainers(trainers);
-            } else {
-                showToast(data.error || 'Failed to load trainers', 'error');
+            const trainers = data.trainers || [];
+            const container = document.getElementById('trainersList');
+            container.innerHTML = '';
+            if (!trainers.length) {
+                container.innerHTML = '<div class="no-data"><i class="fas fa-chalkboard-teacher" style="font-size:64px;opacity:0.4;margin-bottom:20px;display:block"></i><p>No trainers yet</p></div>';
+                return;
             }
+            trainers.forEach(t => {
+                const card = document.createElement('div');
+                card.className = 'trainer-card';
+                card.innerHTML = `<h3>${esc(t.name)}</h3><p>${esc(t.specialty || '')}</p><p>${esc(t.email || '')}</p>`;
+                container.appendChild(card);
+            });
         } catch (e) {
-            showToast('Network error', 'error');
+            showToast(e.message || 'Failed to load trainers', 'error');
         }
-    }
-
-    function renderTrainers(rows) {
-        const container = document.getElementById('trainersList');
-        container.innerHTML = '';
-        if (!rows.length) {
-            container.innerHTML = '<div class="no-data"><i class="fas fa-chalkboard-teacher" style="font-size:64px;opacity:0.4;margin-bottom:20px;display:block"></i><p>No trainers yet</p></div>';
-            return;
-        }
-        rows.forEach(t => {
-            const card = document.createElement('div');
-            card.className = 'trainer-card';
-            card.innerHTML = `<h3>${esc(t.name)}</h3><p>${esc(t.specialty || '')}</p><p>${esc(t.email || '')}</p>`;
-            container.appendChild(card);
-        });
     }
 
     // ---------- USERS ----------
@@ -479,16 +572,12 @@
             const role = document.getElementById('newRole').value;
             if (!username || !password) { showToast('Fill in all fields', 'error'); return; }
             try {
-                const res = await apiPost('/users', { action: 'create', username, password, role, created_by: currentUser.username });
-                if (res.success) {
-                    showToast('User created', 'success');
-                    hideModal(document.getElementById('createUserModal'));
-                    loadUsers();
-                } else {
-                    showToast(res.error || 'Failed', 'error');
-                }
+                await apiPost('/users', { action: 'create', username, password, role, created_by: currentUser.username });
+                showToast('User created', 'success');
+                hideModal(document.getElementById('createUserModal'));
+                loadUsers();
             } catch (e) {
-                showToast('Network error', 'error');
+                showToast(e.message || 'Failed', 'error');
             }
         });
     }
@@ -496,14 +585,10 @@
     async function loadUsers() {
         try {
             const data = await apiGet('/users');
-            if (data.success) {
-                cachedUsers = data.users || [];
-                renderUsers(cachedUsers);
-            } else {
-                showToast(data.error || 'Failed to load users', 'error');
-            }
+            cachedUsers = data.users || [];
+            renderUsers(cachedUsers);
         } catch (e) {
-            showToast('Network error', 'error');
+            showToast(e.message || 'Failed to load users', 'error');
         }
     }
 
@@ -511,10 +596,7 @@
         const tbody = document.getElementById('usersTable');
         const noData = document.getElementById('noUsers');
         tbody.innerHTML = '';
-        if (!rows.length) {
-            noData.style.display = 'block';
-            return;
-        }
+        if (!rows.length) { noData.style.display = 'block'; return; }
         noData.style.display = 'none';
         rows.forEach(u => {
             const tr = document.createElement('tr');
@@ -538,15 +620,11 @@
 
     async function softDeleteUser(id) {
         try {
-            const res = await apiPost('/users', { action: 'delete', id, deleted_by: currentUser.username });
-            if (res.success) {
-                showToast('User moved to trash', 'success');
-                loadUsers();
-            } else {
-                showToast(res.error || 'Failed', 'error');
-            }
+            await apiPost('/users', { action: 'delete', id, deleted_by: currentUser.username });
+            showToast('User moved to trash', 'success');
+            loadUsers();
         } catch (e) {
-            showToast('Network error', 'error');
+            showToast(e.message || 'Failed', 'error');
         }
     }
 
@@ -566,14 +644,10 @@
         const endpoint = type === 'users' ? '/users?trash=1' : '/registrations?trash=1';
         try {
             const data = await apiGet(endpoint);
-            if (data.success) {
-                const items = data.registrations || data.users || [];
-                renderTrash(items, type);
-            } else {
-                showToast(data.error || 'Failed', 'error');
-            }
+            const items = data.registrations || data.users || [];
+            renderTrash(items, type);
         } catch (e) {
-            showToast('Network error', 'error');
+            showToast(e.message || 'Failed', 'error');
         }
     }
 
@@ -581,23 +655,13 @@
         const tbody = document.getElementById('trashTable');
         const noData = document.getElementById('noTrash');
         tbody.innerHTML = '';
-        if (!items.length) {
-            noData.style.display = 'block';
-            return;
-        }
+        if (!items.length) { noData.style.display = 'block'; return; }
         noData.style.display = 'none';
 
-        if (type === 'users') {
-            document.getElementById('trashCol1').textContent = 'Username';
-            document.getElementById('trashCol2').textContent = 'Role';
-            document.getElementById('trashCol3').textContent = 'Deleted At';
-            document.getElementById('trashCol4').textContent = 'Deleted By';
-        } else {
-            document.getElementById('trashCol1').textContent = 'Name';
-            document.getElementById('trashCol2').textContent = 'Email';
-            document.getElementById('trashCol3').textContent = 'Deleted At';
-            document.getElementById('trashCol4').textContent = 'Deleted By';
-        }
+        document.getElementById('trashCol1').textContent = type === 'users' ? 'Username' : 'Name';
+        document.getElementById('trashCol2').textContent = type === 'users' ? 'Role' : 'Email';
+        document.getElementById('trashCol3').textContent = 'Deleted At';
+        document.getElementById('trashCol4').textContent = 'Deleted By';
 
         items.forEach(item => {
             const tr = document.createElement('tr');
@@ -629,13 +693,12 @@
             tr.querySelector('.restore-trash').addEventListener('click', async () => {
                 const id = tr.querySelector('.restore-trash').dataset.id;
                 const t = tr.querySelector('.restore-trash').dataset.type;
-                const endpoint = t === 'users' ? '/users' : '/registrations';
-                const res = await apiPost(endpoint, { action: 'restore', id, username: currentUser.username });
-                if (res.success) {
+                try {
+                    await apiPost(t === 'users' ? '/users' : '/registrations', { action: 'restore', id, username: currentUser.username });
                     showToast('Restored', 'success');
                     loadTrash(currentTrashType);
-                } else {
-                    showToast(res.error || 'Failed to restore', 'error');
+                } catch (e) {
+                    showToast(e.message || 'Failed to restore', 'error');
                 }
             });
 
@@ -648,17 +711,12 @@
     }
 
     async function hardDeleteItem(id, type) {
-        const endpoint = type === 'users' ? '/users' : '/registrations';
         try {
-            const res = await apiPost(endpoint, { action: 'hard_delete', id, username: currentUser.username });
-            if (res.success) {
-                showToast('Permanently deleted', 'success');
-                loadTrash(currentTrashType);
-            } else {
-                showToast(res.error || 'Failed', 'error');
-            }
+            await apiPost(type === 'users' ? '/users' : '/registrations', { action: 'hard_delete', id, username: currentUser.username });
+            showToast('Permanently deleted', 'success');
+            loadTrash(currentTrashType);
         } catch (e) {
-            showToast('Network error', 'error');
+            showToast(e.message || 'Failed', 'error');
         }
     }
 
@@ -670,31 +728,26 @@
             btn.disabled = true;
             btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Sending...';
             try {
-                const res = await apiPost('/send-email', {
+                await apiPost('/send-email', {
                     recipient: document.getElementById('recipient').value,
                     subject: document.getElementById('emailSubject').value,
                     message: document.getElementById('emailBody').value
                 });
-                if (res.success) {
-                    showToast('Email sent', 'success');
-                    e.target.reset();
-                } else {
-                    showToast(res.error || 'Failed to send', 'error');
-                }
+                showToast('Email sent', 'success');
+                e.target.reset();
             } catch (err) {
-                showToast('Network error', 'error');
+                showToast(err.message || 'Failed to send', 'error');
             }
             btn.disabled = false;
             btn.innerHTML = '<i class="fas fa-paper-plane"></i> Send Email';
         });
-
         loadRecipients();
     }
 
     async function loadRecipients() {
         try {
             const data = await apiGet('/registrations?status=approved');
-            if (data.success && data.registrations) {
+            if (data.registrations) {
                 const select = document.getElementById('recipient');
                 select.innerHTML = '<option value="">Select recipient...</option>';
                 data.registrations.forEach(r => {
@@ -715,7 +768,6 @@
         return d.innerHTML;
     }
 
-    // Make modal helpers accessible globally for inline handlers
     window.showModal = showModal;
     window.hideModal = hideModal;
 })();
