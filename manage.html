@@ -17,8 +17,8 @@
         
         <form id="loginForm" class="login-form">
             <div class="form-group">
-                <label for="email">Email Address</label>
-                <input type="email" id="email" required placeholder="Enter your email" autocomplete="email">
+                <label for="username">Username</label>
+                <input type="text" id="username" required placeholder="Enter your username" autocomplete="username">
             </div>
             
             <div class="form-group">
@@ -43,28 +43,42 @@
         </p>
     </div>
 
-    <script src="js/ui-components.js"></script>
     <script>
-        const ADMIN_EMAIL = 'juliusmatro01@gmail.com';
-        const ADMIN_PASSWORD = 'admintest123';
+    document.getElementById('loginForm').addEventListener('submit', async function(e) {
+        e.preventDefault();
+        const username = document.getElementById('username').value.trim();
+        const password = document.getElementById('password').value;
+        const error = document.getElementById('loginError');
+        const btn = this.querySelector('button');
 
-        document.getElementById('loginForm').addEventListener('submit', function(e) {
-            e.preventDefault();
-            const email = document.getElementById('email').value.trim();
-            const password = document.getElementById('password').value;
-            const error = document.getElementById('loginError');
+        btn.disabled = true;
+        btn.textContent = 'Signing in...';
+        error.textContent = '';
 
-            if (email === ADMIN_EMAIL && password === ADMIN_PASSWORD) {
-                sessionStorage.setItem('adminLoggedIn', 'true');
+        try {
+            const resp = await fetch('/api/login', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ username, password })
+            });
+            const data = await resp.json();
+            if (data.success) {
+                sessionStorage.setItem('prhinc_user', JSON.stringify(data.user));
                 window.location.href = 'panel.html';
             } else {
-                error.textContent = 'Invalid email or password';
+                error.textContent = data.error || 'Invalid username or password';
             }
-        });
-
-        if (sessionStorage.getItem('adminLoggedIn') === 'true') {
-            window.location.href = 'panel.html';
+        } catch {
+            error.textContent = 'Connection error. Try again.';
+        } finally {
+            btn.disabled = false;
+            btn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"></path><polyline points="10 17 15 12 10 7"></polyline><line x1="15" y1="12" x2="3" y2="12"></line></svg> Sign In`;
         }
+    });
+
+    if (sessionStorage.getItem('prhinc_user')) {
+        window.location.href = 'panel.html';
+    }
     </script>
 </body>
 </html>

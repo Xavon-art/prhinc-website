@@ -5,11 +5,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>PRHInc Admin Panel</title>
     <link rel="icon" type="image/png" href="images/prhinclogo.png">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <link rel="stylesheet" href="css/panel.css">
 </head>
 <body>
     <div class="dashboard">
-        <!-- Sidebar -->
         <aside class="sidebar">
             <div class="sidebar-header">
                 <img src="images/prhinclogo.png" alt="PRHInc Logo" class="sidebar-logo">
@@ -17,67 +17,49 @@
             </div>
             <nav class="sidebar-nav">
                 <a href="#" class="nav-item active" data-section="registrations">
-                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
-                        <circle cx="9" cy="7" r="4"></circle>
-                        <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
-                        <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
-                    </svg>
+                    <i class="fas fa-users"></i>
                     <span>Registrations</span>
                 </a>
                 <a href="#" class="nav-item" data-section="classes">
-                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <path d="M22 10v6M2 10l10-5 10 5-10 5z"></path>
-                        <path d="M6 12v5c3 3 9 3 12 0v-5"></path>
-                    </svg>
-                    <span>Classes</span>
+                    <i class="fas fa-layer-group"></i>
+                    <span>Classes / Batches</span>
                 </a>
                 <a href="#" class="nav-item" data-section="trainers">
-                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
-                        <circle cx="9" cy="7" r="4"></circle>
-                        <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
-                        <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
-                    </svg>
+                    <i class="fas fa-chalkboard-teacher"></i>
                     <span>Trainers</span>
                 </a>
+                <a href="#" class="nav-item" data-section="users">
+                    <i class="fas fa-user-cog"></i>
+                    <span>Users</span>
+                </a>
+                <a href="#" class="nav-item" data-section="trash">
+                    <i class="fas fa-trash-alt"></i>
+                    <span>Trash</span>
+                </a>
                 <a href="#" class="nav-item" data-section="emails">
-                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path>
-                        <polyline points="22,6 12,13 2,6"></polyline>
-                    </svg>
+                    <i class="fas fa-envelope"></i>
                     <span>Emails</span>
                 </a>
             </nav>
             <div class="sidebar-footer">
+                <div class="user-info">
+                    <i class="fas fa-user-circle"></i>
+                    <span id="currentUserDisplay"></span>
+                </div>
                 <button id="logoutBtn" class="btn-logout">
-                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
-                        <polyline points="16 17 21 12 16 7"></polyline>
-                        <line x1="21" y1="12" x2="9" y2="12"></line>
-                    </svg>
+                    <i class="fas fa-sign-out-alt"></i>
                     <span>Logout</span>
                 </button>
             </div>
         </aside>
 
-        <!-- Main Content -->
         <main class="main-content">
-            <!-- Header -->
             <header class="main-header">
                 <div class="header-left">
                     <button id="menuToggle" class="menu-toggle">
-                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                            <line x1="3" y1="12" x2="21" y2="12"></line>
-                            <line x1="3" y1="6" x2="21" y2="6"></line>
-                            <line x1="3" y1="18" x2="21" y2="18"></line>
-                        </svg>
+                        <i class="fas fa-bars"></i>
                     </button>
                     <h1 id="pageTitle">Registrations</h1>
-                    <span id="lastUpdated" class="last-updated"></span>
-                </div>
-                <div class="header-right">
-                    <span id="adminEmail" class="admin-email"></span>
                 </div>
             </header>
 
@@ -89,7 +71,7 @@
                         <select id="statusFilter" class="filter-select">
                             <option value="all">All Status</option>
                             <option value="pending">Pending</option>
-                            <option value="accepted">Accepted</option>
+                            <option value="approved">Approved</option>
                             <option value="rejected">Rejected</option>
                         </select>
                     </div>
@@ -101,23 +83,19 @@
                                 <th>Name</th>
                                 <th>Email</th>
                                 <th>Phone</th>
-                                <th>Address</th>
                                 <th>Education</th>
-                                <th>Registration Date</th>
+                                <th>Registered</th>
+                                <th>Batch</th>
                                 <th>Status</th>
                                 <th>Actions</th>
                             </tr>
                         </thead>
-                        <tbody id="registrationsTable">
-                        </tbody>
+                        <tbody id="registrationsTable"></tbody>
                     </table>
                 </div>
                 <div id="noRegistrations" class="no-data">
-                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
-                        <polyline points="14 2 14 8 20 8"></polyline>
-                    </svg>
-                    <p>No registrations yet</p>
+                    <i class="fas fa-inbox" style="font-size:64px;opacity:0.4;margin-bottom:20px;display:block"></i>
+                    <p>No registrations found</p>
                 </div>
             </section>
 
@@ -125,46 +103,82 @@
             <section id="classesSection" class="content-section">
                 <div class="section-header">
                     <h2>Classes / Batches</h2>
-                    <button id="createClassBtn" class="btn-primary">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                            <line x1="12" y1="5" x2="12" y2="19"></line>
-                            <line x1="5" y1="12" x2="19" y2="12"></line>
-                        </svg>
-                        Create Class
-                    </button>
+                    <button id="createClassBtn" class="btn-primary"><i class="fas fa-plus"></i> Create Class</button>
                 </div>
-                <div id="classesList" class="classes-grid">
-                </div>
+                <div id="classesList" class="classes-grid"></div>
                 <div id="noClasses" class="no-data">
-                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <path d="M22 10v6M2 10l10-5 10 5-10 5z"></path>
-                        <path d="M6 12v5c3 3 9 3 12 0v-5"></path>
-                    </svg>
+                    <i class="fas fa-layer-group" style="font-size:64px;opacity:0.4;margin-bottom:20px;display:block"></i>
                     <p>No classes created yet</p>
                 </div>
             </section>
 
             <!-- Trainers Section -->
             <section id="trainersSection" class="content-section">
+                <div class="section-header"><h2>Trainers</h2></div>
+                <div id="trainersList" class="trainers-grid"></div>
+            </section>
+
+            <!-- Users Section -->
+            <section id="usersSection" class="content-section">
                 <div class="section-header">
-                    <h2>Trainers</h2>
+                    <h2>User Management</h2>
+                    <button id="createUserBtn" class="btn-primary"><i class="fas fa-user-plus"></i> Create User</button>
                 </div>
-                <div id="trainersList" class="trainers-grid">
+                <div class="table-container">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Username</th>
+                                <th>Role</th>
+                                <th>Created By</th>
+                                <th>Created At</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="usersTable"></tbody>
+                    </table>
+                </div>
+                <div id="noUsers" class="no-data">
+                    <i class="fas fa-users" style="font-size:64px;opacity:0.4;margin-bottom:20px;display:block"></i>
+                    <p>No users found</p>
+                </div>
+            </section>
+
+            <!-- Trash Section -->
+            <section id="trashSection" class="content-section">
+                <div class="section-header"><h2>Trash Bin</h2></div>
+                <div id="trashTabs" class="trash-tabs">
+                    <button class="trash-tab active" data-type="registrations">Registrations</button>
+                    <button class="trash-tab" data-type="users">Users</button>
+                </div>
+                <div class="table-container" style="margin-top:16px">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th id="trashCol1">Name</th>
+                                <th id="trashCol2">Email / Username</th>
+                                <th id="trashCol3">Deleted At</th>
+                                <th id="trashCol4">Deleted By</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="trashTable"></tbody>
+                    </table>
+                </div>
+                <div id="noTrash" class="no-data">
+                    <i class="fas fa-trash-alt" style="font-size:64px;opacity:0.4;margin-bottom:20px;display:block"></i>
+                    <p>Trash is empty</p>
                 </div>
             </section>
 
             <!-- Emails Section -->
             <section id="emailsSection" class="content-section">
-                <div class="section-header">
-                    <h2>Send Email</h2>
-                </div>
+                <div class="section-header"><h2>Send Email</h2></div>
                 <div class="email-form-container">
                     <form id="emailForm" class="email-form">
                         <div class="form-group">
                             <label for="recipient">To:</label>
-                            <select id="recipient" class="form-control">
-                                <option value="">Select a recipient</option>
-                            </select>
+                            <select id="recipient" class="form-control"></select>
                         </div>
                         <div class="form-group">
                             <label for="emailSubject">Subject:</label>
@@ -175,13 +189,7 @@
                             <textarea id="emailBody" class="form-control" rows="10" placeholder="Type your message here..." required></textarea>
                         </div>
                         <div class="form-actions">
-                            <button type="submit" class="btn-primary">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                    <line x1="22" y1="2" x2="11" y2="13"></line>
-                                    <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
-                                </svg>
-                                Send Email
-                            </button>
+                            <button type="submit" class="btn-primary"><i class="fas fa-paper-plane"></i> Send Email</button>
                         </div>
                     </form>
                 </div>
@@ -189,22 +197,17 @@
         </main>
     </div>
 
-    <!-- Create Class Modal -->
+    <!-- Create/Edit Class Modal -->
     <div id="createClassModal" class="modal hidden">
         <div class="modal-content">
             <div class="modal-header">
-                <h2>Create New Class</h2>
-                <button class="modal-close">
-                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <line x1="18" y1="6" x2="6" y2="18"></line>
-                        <line x1="6" y1="6" x2="18" y2="18"></line>
-                    </svg>
-                </button>
+                <h2 id="classModalTitle">Create New Class</h2>
+                <button class="modal-close">&times;</button>
             </div>
             <form id="createClassForm">
                 <div class="form-group">
                     <label for="className">Class Name</label>
-                    <input type="text" id="className" class="form-control" placeholder="e.g., Batch 2024-A" required>
+                    <input type="text" id="className" class="form-control" placeholder="e.g., Batch 2026-A" required>
                 </div>
                 <div class="form-row">
                     <div class="form-group">
@@ -218,18 +221,15 @@
                 </div>
                 <div class="form-group">
                     <label for="classTrainer">Trainer</label>
-                    <select id="classTrainer" class="form-control" required>
-                        <option value="">Select a trainer</option>
-                    </select>
+                    <select id="classTrainer" class="form-control" required><option value="">Select a trainer</option></select>
                 </div>
                 <div class="form-group">
                     <label>Assign Trainees</label>
-                    <div id="traineeCheckboxes" class="checkbox-group">
-                    </div>
+                    <div id="traineeCheckboxes" class="checkbox-group"></div>
                 </div>
-                <div class="modal-footer" style="padding: 0; border: none; margin-top: 24px;">
+                <div class="modal-footer" style="padding:0;border:none;margin-top:24px">
                     <button type="button" class="btn-secondary modal-close">Cancel</button>
-                    <button type="submit" class="btn-primary">Create Class</button>
+                    <button type="submit" class="btn-primary">Save Class</button>
                 </div>
             </form>
         </div>
@@ -240,51 +240,21 @@
         <div class="modal-content modal-lg">
             <div class="modal-header">
                 <h2 id="viewClassName">Class Details</h2>
-                <button class="modal-close">
-                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <line x1="18" y1="6" x2="6" y2="18"></line>
-                        <line x1="6" y1="6" x2="18" y2="18"></line>
-                    </svg>
-                </button>
+                <button class="modal-close">&times;</button>
             </div>
-            <div class="class-details">
-                <div class="detail-row">
-                    <span class="detail-label">Trainer:</span>
-                    <span id="viewClassTrainer" class="detail-value"></span>
-                </div>
-                <div class="detail-row">
-                    <span class="detail-label">Duration:</span>
-                    <span id="viewClassDuration" class="detail-value"></span>
-                </div>
-                <div class="detail-row">
-                    <span class="detail-label">End Date:</span>
-                    <span id="viewClassEndDate" class="detail-value"></span>
-                </div>
+            <div class="class-details" style="padding:24px">
+                <div class="detail-row"><span class="detail-label">Trainer:</span><span id="viewClassTrainer" class="detail-value"></span></div>
+                <div class="detail-row"><span class="detail-label">Duration:</span><span id="viewClassDuration" class="detail-value"></span></div>
             </div>
-            <h3 style="margin: 24px 0 16px;">Trainees</h3>
-            <div class="table-container">
+            <h3 style="padding:0 24px 16px;margin:0">Trainees</h3>
+            <div class="table-container" style="margin:0 24px 24px">
                 <table class="data-table">
-                    <thead>
-                        <tr>
-                            <th>Name</th>
-                            <th>Email</th>
-                            <th>Phone</th>
-                            <th>Registration Date</th>
-                            <th>Action</th>
-                        </tr>
-                    </thead>
-                    <tbody id="viewClassTrainees">
-                    </tbody>
+                    <thead><tr><th>Name</th><th>Email</th><th>Phone</th><th>Action</th></tr></thead>
+                    <tbody id="viewClassTrainees"></tbody>
                 </table>
             </div>
             <div class="modal-footer">
-                <button class="btn-danger" id="deleteClassBtn">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <polyline points="3 6 5 6 21 6"></polyline>
-                        <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
-                    </svg>
-                    Delete Class
-                </button>
+                <button class="btn-danger" id="deleteClassBtn"><i class="fas fa-trash"></i> Delete Class</button>
             </div>
         </div>
     </div>
@@ -294,87 +264,92 @@
         <div class="modal-content">
             <div class="modal-header">
                 <h2>Registration Details</h2>
-                <button class="modal-close">
-                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <line x1="18" y1="6" x2="6" y2="18"></line>
-                        <line x1="6" y1="6" x2="18" y2="18"></line>
-                    </svg>
-                </button>
+                <button class="modal-close">&times;</button>
             </div>
-            <div id="registrationDetails" class="registration-details">
-            </div>
+            <div id="registrationDetails" class="registration-details" style="padding:24px"></div>
             <div class="modal-footer">
-                <button id="acceptBtn" class="btn-success">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <polyline points="20 6 9 17 4 12"></polyline>
-                    </svg>
-                    Accept
-                </button>
-                <button id="rejectBtn" class="btn-danger">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <line x1="18" y1="6" x2="6" y2="18"></line>
-                        <line x1="6" y1="6" x2="18" y2="18"></line>
-                    </svg>
-                    Reject
-                </button>
-                <button id="sendMessageBtn" class="btn-primary">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path>
-                        <polyline points="22,6 12,13 2,6"></polyline>
-                    </svg>
-                    Send Message
-                </button>
+                <button id="acceptBtn" class="btn-success"><i class="fas fa-check"></i> Accept</button>
+                <button id="rejectBtn" class="btn-danger"><i class="fas fa-times"></i> Reject</button>
+                <button id="assignBatchBtn" class="btn-primary"><i class="fas fa-layer-group"></i> Assign Batch</button>
+                <button id="deleteRegBtn" class="btn-danger"><i class="fas fa-trash"></i> Delete</button>
             </div>
         </div>
     </div>
 
-    <!-- Message Box Modal -->
-    <div id="messageBoxModal" class="modal hidden">
-        <div class="modal-content">
+    <!-- Batch Assign Modal -->
+    <div id="batchModal" class="modal hidden">
+        <div class="modal-content" style="max-width:400px">
             <div class="modal-header">
-                <h2>Send Message</h2>
-                <button class="modal-close">
-                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <line x1="18" y1="6" x2="6" y2="18"></line>
-                        <line x1="6" y1="6" x2="18" y2="18"></line>
-                    </svg>
-                </button>
+                <h2>Assign Batch</h2>
+                <button class="modal-close">&times;</button>
             </div>
-            <form id="messageForm">
+            <div style="padding:24px">
                 <div class="form-group">
-                    <label>To:</label>
-                    <input type="text" id="messageRecipient" class="form-control" readonly>
+                    <label for="batchInput">Batch Name</label>
+                    <input type="text" id="batchInput" class="form-control" placeholder="e.g., Batch 2026-A">
+                </div>
+                <p style="font-size:14px;color:#666;margin-top:12px">Or select from existing batches:</p>
+                <select id="batchSelect" class="form-control" style="margin-top:8px">
+                    <option value="">Custom...</option>
+                </select>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-secondary modal-close">Cancel</button>
+                <button id="saveBatchBtn" class="btn-primary">Save</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Create User Modal -->
+    <div id="createUserModal" class="modal hidden">
+        <div class="modal-content" style="max-width:420px">
+            <div class="modal-header">
+                <h2>Create User</h2>
+                <button class="modal-close">&times;</button>
+            </div>
+            <form id="createUserForm" style="padding:24px">
+                <div class="form-group">
+                    <label for="newUsername">Username</label>
+                    <input type="text" id="newUsername" class="form-control" required placeholder="Enter username">
                 </div>
                 <div class="form-group">
-                    <label>Message:</label>
-                    <textarea id="messageContent" class="form-control" rows="6" placeholder="Type your message here..." required></textarea>
+                    <label for="newPassword">Password</label>
+                    <input type="password" id="newPassword" class="form-control" required placeholder="Enter password">
                 </div>
-                <div class="modal-footer" style="padding: 0; border: none; margin-top: 24px;">
+                <div class="form-group">
+                    <label for="newRole">Role</label>
+                    <select id="newRole" class="form-control">
+                        <option value="clerk">Clerk</option>
+                        <option value="admin">Admin</option>
+                    </select>
+                </div>
+                <div class="modal-footer" style="padding:0;border:none;margin-top:24px">
                     <button type="button" class="btn-secondary modal-close">Cancel</button>
-                    <button type="submit" class="btn-primary">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                            <line x1="22" y1="2" x2="11" y2="13"></line>
-                            <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
-                        </svg>
-                        Send
-                    </button>
+                    <button type="submit" class="btn-primary">Create</button>
                 </div>
             </form>
         </div>
     </div>
 
-    <!-- Toast Notification -->
-    <div id="toast" class="toast hidden">
-        <div class="toast-content">
-            <svg class="toast-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
-                <polyline points="22 4 12 14.01 9 11.01"></polyline>
-            </svg>
-            <span id="toastMessage"></span>
+    <!-- Confirm Delete Modal -->
+    <div id="confirmModal" class="modal hidden">
+        <div class="modal-content" style="max-width:420px">
+            <div class="modal-header">
+                <h2 id="confirmTitle">Confirm Delete</h2>
+                <button class="modal-close">&times;</button>
+            </div>
+            <div style="padding:24px">
+                <p id="confirmMessage" style="margin-bottom:16px;line-height:1.5">Type <strong>delete</strong> to confirm:</p>
+                <input type="text" id="confirmInput" class="form-control" placeholder="Type 'delete' here">
+                <p id="confirmError" style="color:var(--danger);font-size:14px;margin-top:8px;display:none">You must type "delete" exactly</p>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-secondary modal-close">Cancel</button>
+                <button id="confirmDeleteBtn" class="btn-danger" disabled>Delete</button>
+            </div>
         </div>
     </div>
 
-    <script src="js/turso.js"></script>
     <script src="js/ui-components.js"></script>
     <script src="js/panel.js"></script>
 </body>
