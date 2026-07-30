@@ -34,7 +34,7 @@ export async function onRequest(context) {
     const publicKey = env.EMAILJS_PUBLIC_KEY || '5iXC21YCopm6SoX41';
     const privateKey = env.EMAILJS_PRIVATE_KEY || '8ZTAAG2_IH4M0758Ofi88';
     const serviceId = env.EMAILJS_SERVICE_ID || 'service_ytxgc1i';
-    const templateId = env.EMAILJS_NOTIFICATION_TEMPLATE_ID || 'template_5mjdcrn';
+    const templateId = env.EMAILJS_NOTIFICATION_TEMPLATE_ID || 'template_ffjdjan';
 
     const resp = await fetch('https://api.emailjs.com/api/v1.0/email/send', {
       method: 'POST',
