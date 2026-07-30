@@ -37,11 +37,29 @@ export async function onRequest(context) {
 
     if (action === 'create') {
       if (!isAdmin) return json({ error: 'Unauthorized' }, 403);
+      const newUsername = body.username;
+      const newRole = body.role || 'clerk';
+
+      // Check if username already exists
+      const existing = await tursoSelect("SELECT id, deleted_at FROM users WHERE username = ?", [newUsername]);
+      if (existing.length > 0) {
+        if (existing[0].deleted_at === null) {
+          return json({ error: 'Username already taken' }, 409);
+        }
+        // Reclaim soft-deleted username: restore and update
+        const hash = await hashPassword(body.password);
+        await tursoQuery(
+          "UPDATE users SET password = ?, role = ?, deleted_at = NULL, deleted_by = NULL, created_by = ?, created_at = ? WHERE id = ?",
+          [hash, newRole, requester, new Date().toISOString(), existing[0].id]
+        );
+        return json({ success: true, reclaimed: true });
+      }
+
       const hash = await hashPassword(body.password);
       const newId = 'usr_' + Date.now().toString(36) + Math.random().toString(36).substring(2, 6);
       await tursoQuery(
         'INSERT INTO users (id, username, password, role, created_by, created_at) VALUES (?, ?, ?, ?, ?, ?)',
-        [newId, body.username, hash, body.role || 'clerk', requester, new Date().toISOString()]
+        [newId, newUsername, hash, newRole, requester, new Date().toISOString()]
       );
       return json({ success: true });
     }
