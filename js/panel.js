@@ -154,25 +154,41 @@
     // ---------- REJECT REASON MODAL ----------
     function initRejectModal() {
         const modal = document.getElementById('rejectModal');
+        const textarea = document.getElementById('rejectReason');
+        const sendBtn = document.getElementById('confirmRejectBtn');
         const closeBtns = modal.querySelectorAll('.modal-close');
-        document.getElementById('confirmRejectBtn').addEventListener('click', async () => {
-            const reason = document.getElementById('rejectReason').value.trim();
-            if (!reason) { showToast('Please enter a rejection reason', 'error'); return; }
+
+        textarea.addEventListener('input', () => {
+            sendBtn.disabled = textarea.value.trim() === '';
+        });
+
+        sendBtn.addEventListener('click', async () => {
+            const reason = textarea.value.trim();
+            if (!reason) return;
+            sendBtn.disabled = true;
             await doReject(pendingRejectId, reason);
             pendingRejectId = null;
             hideModal(modal);
         });
-        closeBtns.forEach(el => el.addEventListener('click', () => {
+
+        function cancel() {
             pendingRejectId = null;
+            textarea.value = '';
+            sendBtn.disabled = true;
             hideModal(modal);
-        }));
-        modal.addEventListener('click', e => { if (e.target === modal) { pendingRejectId = null; hideModal(modal); } });
+        }
+        closeBtns.forEach(el => el.addEventListener('click', cancel));
+        modal.addEventListener('click', e => { if (e.target === modal) cancel(); });
     }
 
     function showRejectModal(id) {
         pendingRejectId = id;
-        document.getElementById('rejectReason').value = '';
+        const textarea = document.getElementById('rejectReason');
+        const sendBtn = document.getElementById('confirmRejectBtn');
+        textarea.value = '';
+        sendBtn.disabled = true;
         showModal(document.getElementById('rejectModal'));
+        textarea.focus();
     }
 
     function showModal(el) { el.classList.remove('hidden'); el.style.display = 'flex'; }
