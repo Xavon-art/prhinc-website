@@ -31,7 +31,6 @@
         initUsers();
         initTrainers();
         initTrash();
-        initEmails();
         initConfirmModal();
         initRejectModal();
         loadSection('registrations');
@@ -69,7 +68,7 @@
         if (el) el.classList.add('active');
         const titles = {
             registrations: 'Registrations', approved: 'Approved Trainees', classes: 'Classes / Batches',
-            trainers: 'Trainers', users: 'Users', trash: 'Trash', emails: 'Emails'
+            trainers: 'Trainers', users: 'Users', trash: 'Trash'
         };
         document.getElementById('pageTitle').textContent = titles[section] || section;
 
@@ -794,49 +793,6 @@
         } catch (e) {
             showToast(e.message || 'Failed', 'error');
         }
-    }
-
-    // ---------- EMAILS ----------
-    function initEmails() {
-        document.getElementById('emailForm').addEventListener('submit', async e => {
-            e.preventDefault();
-            const btn = e.target.querySelector('button[type="submit"]');
-            btn.disabled = true;
-            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Sending...';
-            try {
-                const recipientEl = document.getElementById('recipient');
-                await apiPost('/send-email', {
-                    name: recipientEl.selectedOptions[0]?.dataset.name || '',
-                    email: recipientEl.value,
-                    subject: document.getElementById('emailSubject').value,
-                    message: document.getElementById('emailBody').value
-                });
-                showToast('Email sent', 'success');
-                e.target.reset();
-            } catch (err) {
-                showToast(err.message || 'Failed to send', 'error');
-            }
-            btn.disabled = false;
-            btn.innerHTML = '<i class="fas fa-paper-plane"></i> Send Email';
-        });
-        loadRecipients();
-    }
-
-    async function loadRecipients() {
-        try {
-            const data = await apiGet('/registrations?status=approved');
-            if (data.registrations) {
-                const select = document.getElementById('recipient');
-                select.innerHTML = '<option value="">Select recipient...</option>';
-                data.registrations.forEach(r => {
-                    const opt = document.createElement('option');
-                    opt.value = r.email;
-                    opt.dataset.name = r.name;
-                    opt.textContent = `${r.name} <${r.email}>`;
-                    select.appendChild(opt);
-                });
-            }
-        } catch (e) { /* ignore */ }
     }
 
     // ---------- UTILS ----------
