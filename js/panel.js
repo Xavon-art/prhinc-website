@@ -600,11 +600,10 @@
         document.getElementById('createTrainerForm').addEventListener('submit', async e => {
             e.preventDefault();
             const name = document.getElementById('trainerName').value.trim();
-            const specialty = document.getElementById('trainerSpecialty').value.trim();
             const email = document.getElementById('trainerEmail').value.trim();
             if (!name) { showToast('Trainer name required', 'error'); return; }
             try {
-                await apiPost('/trainers', { action: 'create', name, specialty, email, username: currentUser.username });
+                await apiPost('/trainers', { action: 'create', name, email, username: currentUser.username });
                 showToast('Trainer added', 'success');
                 hideModal(document.getElementById('createTrainerModal'));
                 loadTrainers();
@@ -627,7 +626,7 @@
             trainers.forEach(t => {
                 const card = document.createElement('div');
                 card.className = 'trainer-card';
-                card.innerHTML = `<h3>${esc(t.name)}</h3><p>${esc(t.specialty || '')}</p><p>${esc(t.email || '')}</p>`;
+                card.innerHTML = `<h3>${esc(t.name)}</h3><p><i class="fas fa-envelope"></i> ${esc(t.email || 'No email')}</p>`;
                 container.appendChild(card);
             });
         } catch (e) {

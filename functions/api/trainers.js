@@ -9,7 +9,7 @@ export async function onRequest(context) {
 
   try {
     if (request.method === 'GET') {
-      const trainers = await tursoSelect("SELECT * FROM trainers ORDER BY name ASC");
+      const trainers = await tursoSelect("SELECT name, email FROM trainers ORDER BY name ASC");
       return json({ success: true, trainers });
     }
 
@@ -19,20 +19,19 @@ export async function onRequest(context) {
     const { action } = body;
 
     if (action === 'create') {
-      const { name, specialty, email } = body;
+      const { name, email } = body;
       if (!name) return json({ error: 'Trainer name required' }, 400);
-      const id = 'trn_' + Date.now().toString(36) + Math.random().toString(36).substring(2, 6);
-      await tursoQuery(
-        'INSERT INTO trainers (id, name, specialty, email, created_at) VALUES (?, ?, ?, ?, ?)',
-        [id, name, specialty || null, email || null, new Date().toISOString()]
-      );
-      return json({ success: true, id });
+      const existing = await tursoSelect("SELECT name FROM trainers WHERE name = ?", [name]);
+      if (existing.length > 0) return json({ error: 'Trainer already exists' }, 409);
+      await tursoQuery('INSERT INTO trainers (name, email) VALUES (?, ?)', [name, email || null]);
+      return json({ success: true });
     }
 
     if (action === 'delete') {
-      const { id } = body;
-      await tursoQuery("UPDATE classes SET trainer = NULL WHERE trainer = (SELECT name FROM trainers WHERE id = ?)", [id]);
-      await tursoQuery('DELETE FROM trainers WHERE id = ?', [id]);
+      const { name } = body;
+      if (!name) return json({ error: 'Trainer name required' }, 400);
+      await tursoQuery("UPDATE classes SET trainer = NULL WHERE trainer = ?", [name]);
+      await tursoQuery('DELETE FROM trainers WHERE name = ?', [name]);
       return json({ success: true });
     }
 
