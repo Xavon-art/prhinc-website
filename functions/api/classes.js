@@ -33,7 +33,7 @@ export async function onRequest(context) {
       }
 
       const rows = await tursoSelect("SELECT * FROM classes ORDER BY created_at DESC");
-      const list = rows.map(c => ({ ...c, trainee_count: parseTrainees(c.trainees).length }));
+      const list = rows.map(c => ({ ...c, trainees: parseTrainees(c.trainees), trainee_count: parseTrainees(c.trainees).length }));
       return json({ success: true, classes: list });
     }
 
