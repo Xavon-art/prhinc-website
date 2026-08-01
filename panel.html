@@ -144,7 +144,10 @@
 
             <!-- Trainers Section -->
             <section id="trainersSection" class="content-section">
-                <div class="section-header"><h2>Trainers</h2></div>
+                <div class="section-header">
+                    <h2>Trainers</h2>
+                    <button id="createTrainerBtn" class="btn-primary"><i class="fas fa-user-plus"></i> Add Trainer</button>
+                </div>
                 <div id="trainersList" class="trainers-grid"></div>
             </section>
 
@@ -356,6 +359,34 @@
                 <div class="modal-footer" style="padding:0;border:none;margin-top:24px">
                     <button type="button" class="btn-secondary modal-close">Cancel</button>
                     <button type="submit" class="btn-primary">Create</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Add Trainer Modal -->
+    <div id="createTrainerModal" class="modal hidden">
+        <div class="modal-content" style="max-width:420px">
+            <div class="modal-header">
+                <h2>Add Trainer</h2>
+                <button class="modal-close">&times;</button>
+            </div>
+            <form id="createTrainerForm" style="padding:24px">
+                <div class="form-group">
+                    <label for="trainerName">Full Name</label>
+                    <input type="text" id="trainerName" class="form-control" required placeholder="Enter trainer name">
+                </div>
+                <div class="form-group">
+                    <label for="trainerSpecialty">Specialty</label>
+                    <input type="text" id="trainerSpecialty" class="form-control" placeholder="e.g., Call Center Training">
+                </div>
+                <div class="form-group">
+                    <label for="trainerEmail">Email</label>
+                    <input type="email" id="trainerEmail" class="form-control" placeholder="trainer@email.com">
+                </div>
+                <div class="modal-footer" style="padding:0;border:none;margin-top:24px">
+                    <button type="button" class="btn-secondary modal-close">Cancel</button>
+                    <button type="submit" class="btn-primary">Save</button>
                 </div>
             </form>
         </div>

@@ -22,18 +22,29 @@
         if (user.role !== 'admin') {
             document.querySelectorAll('[data-section="users"], [data-section="trash"]').forEach(el => el.style.display = 'none');
         }
+        initModalCloseButtons();
         initNavigation();
         initLogout();
         initRegistrations();
         initApproved();
         initClasses();
         initUsers();
+        initTrainers();
         initTrash();
         initEmails();
         initConfirmModal();
         initRejectModal();
         loadSection('registrations');
     });
+
+    function initModalCloseButtons() {
+        document.querySelectorAll('.modal').forEach(modal => {
+            modal.querySelectorAll('.modal-close').forEach(btn => {
+                btn.addEventListener('click', () => hideModal(modal));
+            });
+            modal.addEventListener('click', e => { if (e.target === modal) hideModal(modal); });
+        });
+    }
 
     function initNavigation() {
         document.querySelectorAll('.nav-item').forEach(item => {
@@ -445,6 +456,7 @@
             document.getElementById('classModalTitle').textContent = 'Create New Class';
             document.getElementById('createClassForm').reset();
             populateTraineeCheckboxes();
+            populateTrainerSelect();
             showModal(document.getElementById('createClassModal'));
         });
 
@@ -540,18 +552,68 @@
         }
     }
 
-    function populateTraineeCheckboxes() {
+    async function populateTraineeCheckboxes() {
         const container = document.getElementById('traineeCheckboxes');
-        container.innerHTML = '';
-        cachedRegistrations.filter(r => r.status === 'approved').forEach(r => {
-            const label = document.createElement('label');
-            label.className = 'checkbox-label';
-            label.innerHTML = `<input type="checkbox" value="${r.id}"> ${esc(r.name)} (${esc(r.email)})`;
-            container.appendChild(label);
-        });
+        container.innerHTML = '<p style="color:#94a3b8;font-size:13px">Loading approved trainees...</p>';
+        try {
+            const data = await apiGet('/registrations?status=approved');
+            const approved = data.registrations || [];
+            container.innerHTML = '';
+            if (!approved.length) {
+                container.innerHTML = '<p style="color:#94a3b8;font-size:13px">No approved trainees to assign yet.</p>';
+                return;
+            }
+            approved.forEach(r => {
+                const label = document.createElement('label');
+                label.className = 'checkbox-label';
+                label.innerHTML = `<input type="checkbox" value="${r.id}"> ${esc(r.name)} (${esc(r.email)})`;
+                container.appendChild(label);
+            });
+        } catch (e) {
+            container.innerHTML = '<p style="color:#ef4444;font-size:13px">Failed to load approved trainees.</p>';
+        }
+    }
+
+    async function populateTrainerSelect() {
+        const select = document.getElementById('classTrainer');
+        select.innerHTML = '<option value="">Select a trainer</option>';
+        try {
+            const data = await apiGet('/trainers');
+            (data.trainers || []).forEach(t => {
+                const opt = document.createElement('option');
+                opt.value = t.name;
+                opt.textContent = t.name;
+                select.appendChild(opt);
+            });
+        } catch (e) {
+            /* trainers endpoint not available yet */
+        }
     }
 
     // ---------- TRAINERS ----------
+    function initTrainers() {
+        document.getElementById('createTrainerBtn').addEventListener('click', () => {
+            document.getElementById('createTrainerForm').reset();
+            showModal(document.getElementById('createTrainerModal'));
+        });
+
+        document.getElementById('createTrainerForm').addEventListener('submit', async e => {
+            e.preventDefault();
+            const name = document.getElementById('trainerName').value.trim();
+            const specialty = document.getElementById('trainerSpecialty').value.trim();
+            const email = document.getElementById('trainerEmail').value.trim();
+            if (!name) { showToast('Trainer name required', 'error'); return; }
+            try {
+                await apiPost('/trainers', { action: 'create', name, specialty, email, username: currentUser.username });
+                showToast('Trainer added', 'success');
+                hideModal(document.getElementById('createTrainerModal'));
+                loadTrainers();
+            } catch (e) {
+                showToast(e.message || 'Failed to add trainer', 'error');
+            }
+        });
+    }
+
     async function loadTrainers() {
         try {
             const data = await apiGet('/trainers');
@@ -743,8 +805,10 @@
             btn.disabled = true;
             btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Sending...';
             try {
+                const recipientEl = document.getElementById('recipient');
                 await apiPost('/send-email', {
-                    recipient: document.getElementById('recipient').value,
+                    name: recipientEl.selectedOptions[0]?.dataset.name || '',
+                    email: recipientEl.value,
                     subject: document.getElementById('emailSubject').value,
                     message: document.getElementById('emailBody').value
                 });
@@ -768,6 +832,7 @@
                 data.registrations.forEach(r => {
                     const opt = document.createElement('option');
                     opt.value = r.email;
+                    opt.dataset.name = r.name;
                     opt.textContent = `${r.name} <${r.email}>`;
                     select.appendChild(opt);
                 });
