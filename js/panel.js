@@ -734,23 +734,32 @@
         tbody.innerHTML = '';
         if (!rows.length) { noData.style.display = 'block'; return; }
         noData.style.display = 'none';
+        const adminCount = rows.filter(u => u.role === 'admin').length;
         rows.forEach(u => {
             const tr = document.createElement('tr');
+            const isSelf = u.username === currentUser.username;
+            const isLastAdmin = u.role === 'admin' && adminCount <= 1;
+            const canDelete = !isSelf && !isLastAdmin;
             tr.innerHTML = `
-                <td>${esc(u.username)}</td>
+                <td>${esc(u.username)}${isSelf ? ' <span class="status-badge status-approved" style="font-size:0.7rem;padding:3px 8px">you</span>' : ''}</td>
                 <td>${esc(u.role)}</td>
                 <td>${esc(u.created_by || '-')}</td>
                 <td>${u.created_at ? new Date(u.created_at).toLocaleDateString() : '-'}</td>
                 <td>
-                    <button class="btn-icon delete-user" data-id="${u.id}" data-username="${esc(u.username)}" title="Delete"><i class="fas fa-trash" style="color:var(--danger)"></i></button>
+                    ${canDelete
+                        ? `<button class="btn-icon delete-user" data-id="${u.id}" data-username="${esc(u.username)}" title="Delete"><i class="fas fa-trash" style="color:var(--danger)"></i></button>`
+                        : `<span title="${isLastAdmin ? 'Cannot delete the only admin' : 'Cannot delete yourself'}" style="color:var(--text-light);font-size:13px">-</span>`}
                 </td>
             `;
             tbody.appendChild(tr);
-            tr.querySelector('.delete-user').addEventListener('click', () => {
-                const id = tr.querySelector('.delete-user').dataset.id;
-                const uname = tr.querySelector('.delete-user').dataset.username;
-                showConfirmModal('Delete User', `Type <strong>delete</strong> to move user <strong>${esc(uname)}</strong> to trash:`, () => softDeleteUser(id));
-            });
+            const delBtn = tr.querySelector('.delete-user');
+            if (delBtn) {
+                delBtn.addEventListener('click', () => {
+                    const id = delBtn.dataset.id;
+                    const uname = delBtn.dataset.username;
+                    showConfirmModal('Delete User', `Type <strong>delete</strong> to move user <strong>${esc(uname)}</strong> to trash:`, () => softDeleteUser(id));
+                });
+            }
         });
     }
 

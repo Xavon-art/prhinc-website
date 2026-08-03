@@ -66,9 +66,16 @@ export async function onRequest(context) {
 
     if (action === 'delete') {
       if (!isAdmin) return json({ error: 'Unauthorized' }, 403);
-      const rows = await tursoSelect("SELECT username FROM users WHERE id = ? AND deleted_at IS NULL", [id]);
+      const rows = await tursoSelect("SELECT id, username, role FROM users WHERE id = ? AND deleted_at IS NULL", [id]);
       if (rows.length === 0) return json({ error: 'User not found' }, 404);
       if (rows[0].username === requester) return json({ error: 'Cannot delete yourself' }, 400);
+      if (rows[0].role === 'admin') {
+        const adminCount = await tursoSelect(
+          "SELECT COUNT(*) AS count FROM users WHERE role = 'admin' AND deleted_at IS NULL"
+        );
+        const count = adminCount.length > 0 ? Number(adminCount[0].count) : 0;
+        if (count <= 1) return json({ error: 'Cannot delete the only admin. Create another admin first.' }, 400);
+      }
       await tursoQuery(
         "UPDATE users SET deleted_at = ?, deleted_by = ? WHERE id = ? AND deleted_at IS NULL",
         [new Date().toISOString(), requester, id]
