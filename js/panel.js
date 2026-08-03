@@ -54,7 +54,7 @@
             });
         });
         document.getElementById('menuToggle').addEventListener('click', () => {
-            document.querySelector('.sidebar').classList.toggle('open');
+            document.querySelector('.sidebar').classList.toggle('active');
         });
     }
 
@@ -539,8 +539,9 @@
                 (c.trainees || []).forEach(t => {
                     const tr = document.createElement('tr');
                     tr.innerHTML = `<td>${esc(t.name)}</td><td>${esc(t.email)}</td><td>${esc(t.phone || '')}</td>
-                        <td><button class="btn-icon" onclick="alert('Remove trainee - not implemented')"><i class="fas fa-user-minus"></i></button></td>`;
+                        <td><button class="btn-icon remove-trainee" data-id="${esc(t.id)}" title="Remove trainee"><i class="fas fa-user-minus"></i></button></td>`;
                     tbody.appendChild(tr);
+                    tr.querySelector('.remove-trainee').addEventListener('click', () => removeTrainee(c.id, t.id));
                 });
                 showModal(document.getElementById('viewClassModal'));
             } else {
@@ -548,6 +549,17 @@
             }
         } catch (e) {
             showToast('Network error', 'error');
+        }
+    }
+
+    async function removeTrainee(classId, traineeId) {
+        try {
+            await apiPost('/classes', { action: 'remove_trainee', id: classId, traineeId });
+            showToast('Trainee removed', 'success');
+            openViewClassModal(classId);
+            loadClasses();
+        } catch (e) {
+            showToast(e.message || 'Failed to remove trainee', 'error');
         }
     }
 
@@ -716,7 +728,7 @@
     }
 
     async function loadTrash(type) {
-        const endpoint = type === 'users' ? '/users?trash=1' : '/registrations?trash=1';
+        const endpoint = type === 'users' ? '/users?trash=1' : '/registrations?filter=trash';
         try {
             const data = await apiGet(endpoint);
             const items = data.registrations || data.users || [];

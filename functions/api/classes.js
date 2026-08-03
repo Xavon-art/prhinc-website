@@ -59,6 +59,16 @@ export async function onRequest(context) {
       return json({ success: true });
     }
 
+    if (action === 'remove_trainee') {
+      const { id, traineeId } = body;
+      if (!id || !traineeId) return json({ error: 'Class id and trainee id required' }, 400);
+      const classes = await tursoSelect("SELECT trainees FROM classes WHERE id = ?", [id]);
+      if (classes.length === 0) return json({ error: 'Class not found' }, 404);
+      const updated = parseTrainees(classes[0].trainees).filter(t => t !== traineeId);
+      await tursoQuery("UPDATE classes SET trainees = ? WHERE id = ?", [JSON.stringify(updated), id]);
+      return json({ success: true });
+    }
+
     return json({ error: 'Invalid action' }, 400);
 
   } catch (err) {

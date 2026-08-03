@@ -827,26 +827,33 @@ textarea.form-control {
     padding: 12px;
 }
 
-.checkbox-item {
+.checkbox-item,
+.checkbox-label {
     display: flex;
     align-items: center;
     padding: 10px 12px;
     border-bottom: 1px solid var(--border);
     transition: var(--transition);
+    cursor: pointer;
+    font-size: 0.95rem;
 }
 
-.checkbox-item:last-child {
+.checkbox-item:last-child,
+.checkbox-label:last-child {
     border-bottom: none;
 }
 
-.checkbox-item:hover {
+.checkbox-item:hover,
+.checkbox-label:hover {
     background: var(--bg-alt);
 }
 
-.checkbox-item input[type="checkbox"] {
+.checkbox-item input[type="checkbox"],
+.checkbox-label input[type="checkbox"] {
     width: 18px;
     height: 18px;
     margin-right: 12px;
+    flex-shrink: 0;
     accent-color: var(--accent);
 }
 
