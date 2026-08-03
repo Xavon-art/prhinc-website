@@ -82,7 +82,13 @@
     }
 
     function initLogout() {
-        document.getElementById('logoutBtn').addEventListener('click', () => {
+        document.getElementById('logoutBtn').addEventListener('click', async () => {
+            if (window.prhConfirm) {
+                const ok = await window.prhConfirm('Are you sure you want to log out?', {
+                    title: 'Logout', confirmText: 'Yes, Logout', cancelText: 'Cancel', confirmClass: 'prh-btn--danger'
+                });
+                if (!ok) return;
+            } else if (!confirm('Are you sure you want to log out?')) return;
             sessionStorage.removeItem('prhinc_user');
             window.location.href = '/manage';
         });
