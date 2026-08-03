@@ -299,6 +299,13 @@ h1, h2, h3, h4, h5, h6 {
     box-shadow: 0 4px 14px 0 rgba(3, 105, 161, 0.4);
 }
 
+.btn-primary:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
+}
+
 .btn-secondary {
     padding: 12px 24px;
     background: var(--bg-alt);

@@ -372,32 +372,46 @@
 
     async function saveBatch() {
         const id = currentBatchRegId;
-        const batch = document.getElementById('batchInput').value.trim() || document.getElementById('batchSelect').value;
-        if (!batch) { showToast('Enter a batch name', 'error'); return; }
+        const batch = document.getElementById('batchSelect').value;
+        if (!batch) { showToast('No batch selected. Create a class first.', 'error'); return; }
         try {
             await apiPost('/registrations', { action: 'batch', id, batch, username: currentUser.username });
             showToast('Batch assigned', 'success');
             hideModal(document.getElementById('batchModal'));
             loadRegistrations();
+            loadApproved();
         } catch (e) {
             showToast(e.message || 'Failed to assign batch', 'error');
         }
     }
 
-    function openBatchModal(id) {
+    async function openBatchModal(id) {
         currentBatchRegId = id;
-        document.getElementById('batchInput').value = '';
-        document.getElementById('batchSelect').value = '';
         const select = document.getElementById('batchSelect');
-        select.innerHTML = '<option value="">Custom...</option>';
-        cachedRegistrations.forEach(r => {
-            if (r.batch && ![...select.options].some(o => o.value === r.batch)) {
-                const opt = document.createElement('option');
-                opt.value = r.batch;
-                opt.textContent = r.batch;
-                select.appendChild(opt);
+        const emptyMsg = document.getElementById('batchEmptyMsg');
+        const saveBtn = document.getElementById('saveBatchBtn');
+        select.innerHTML = '<option value="">Select a batch...</option>';
+        if (emptyMsg) emptyMsg.style.display = 'none';
+        if (saveBtn) saveBtn.disabled = false;
+        try {
+            const data = await apiGet('/classes');
+            const classes = data.classes || [];
+            classes.forEach(c => {
+                if (![...select.options].some(o => o.value === c.name)) {
+                    const opt = document.createElement('option');
+                    opt.value = c.name;
+                    opt.textContent = c.name;
+                    select.appendChild(opt);
+                }
+            });
+            if (classes.length === 0) {
+                if (emptyMsg) emptyMsg.style.display = 'block';
+                if (saveBtn) saveBtn.disabled = true;
             }
-        });
+        } catch (e) {
+            if (emptyMsg) emptyMsg.style.display = 'block';
+            if (saveBtn) saveBtn.disabled = true;
+        }
         showModal(document.getElementById('batchModal'));
     }
 

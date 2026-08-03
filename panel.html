@@ -294,13 +294,12 @@
             </div>
             <div class="modal-body">
                 <div class="form-group">
-                    <label for="batchInput">Batch Name</label>
-                    <input type="text" id="batchInput" class="form-control" placeholder="e.g., Batch 2026-A">
+                    <label for="batchSelect">Batch</label>
+                    <select id="batchSelect" class="form-control">
+                        <option value="">Select a batch...</option>
+                    </select>
                 </div>
-                <p style="font-size:14px;color:var(--text-muted);margin-top:12px">Or select from existing batches:</p>
-                <select id="batchSelect" class="form-control" style="margin-top:8px">
-                    <option value="">Custom...</option>
-                </select>
+                <p id="batchEmptyMsg" style="font-size:14px;color:var(--danger);margin-top:12px;display:none">No batches created yet. Go to Classes / Batches to create one first.</p>
             </div>
             <div class="modal-footer">
                 <button class="btn-secondary modal-close">Cancel</button>
