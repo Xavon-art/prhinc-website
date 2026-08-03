@@ -744,6 +744,20 @@ h1, h2, h3, h4, h5, h6 {
     font-size: 0.95rem;
 }
 
+.trainer-card-actions {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    margin-top: 20px;
+    flex-wrap: wrap;
+}
+
+.trainer-card-actions .btn-small {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+}
+
 .form-control {
     width: 100%;
     padding: 14px 16px;

@@ -27,6 +27,16 @@ export async function onRequest(context) {
       return json({ success: true });
     }
 
+    if (action === 'update') {
+      const { oldName, name, email } = body;
+      if (!oldName || !name) return json({ error: 'Trainer name required' }, 400);
+      const duplicate = await tursoSelect("SELECT name FROM trainers WHERE name = ? AND name != ?", [name, oldName]);
+      if (duplicate.length > 0) return json({ error: 'Trainer already exists' }, 409);
+      await tursoQuery("UPDATE trainers SET name = ?, email = ? WHERE name = ?", [name, email || null, oldName]);
+      await tursoQuery("UPDATE classes SET trainer = ? WHERE trainer = ?", [name, oldName]);
+      return json({ success: true });
+    }
+
     if (action === 'delete') {
       const { name } = body;
       if (!name) return json({ error: 'Trainer name required' }, 400);

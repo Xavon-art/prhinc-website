@@ -606,9 +606,13 @@
     }
 
     // ---------- TRAINERS ----------
+    let editingTrainerName = null;
+
     function initTrainers() {
         document.getElementById('createTrainerBtn').addEventListener('click', () => {
+            editingTrainerName = null;
             document.getElementById('createTrainerForm').reset();
+            document.getElementById('trainerModalTitle').textContent = 'Add Trainer';
             showModal(document.getElementById('createTrainerModal'));
         });
 
@@ -618,12 +622,40 @@
             const email = document.getElementById('trainerEmail').value.trim();
             if (!name) { showToast('Trainer name required', 'error'); return; }
             try {
-                await apiPost('/trainers', { action: 'create', name, email, username: currentUser.username });
-                showToast('Trainer added', 'success');
+                if (editingTrainerName) {
+                    await apiPost('/trainers', { action: 'update', oldName: editingTrainerName, name, email, username: currentUser.username });
+                    showToast('Trainer updated', 'success');
+                } else {
+                    await apiPost('/trainers', { action: 'create', name, email, username: currentUser.username });
+                    showToast('Trainer added', 'success');
+                }
                 hideModal(document.getElementById('createTrainerModal'));
+                editingTrainerName = null;
                 loadTrainers();
-            } catch (e) {
-                showToast(e.message || 'Failed to add trainer', 'error');
+                populateTrainerSelect();
+            } catch (err) {
+                showToast(err.message || 'Failed to save trainer', 'error');
+            }
+        });
+    }
+
+    function editTrainer(name, email) {
+        editingTrainerName = name;
+        document.getElementById('trainerModalTitle').textContent = 'Edit Trainer';
+        document.getElementById('trainerName').value = name;
+        document.getElementById('trainerEmail').value = email || '';
+        showModal(document.getElementById('createTrainerModal'));
+    }
+
+    function deleteTrainer(name) {
+        showConfirmModal('Delete Trainer', `Type <strong>delete</strong> to remove trainer <strong>${esc(name)}</strong>. Classes assigned to this trainer will be unassigned:`, async () => {
+            try {
+                await apiPost('/trainers', { action: 'delete', name, username: currentUser.username });
+                showToast('Trainer deleted', 'success');
+                loadTrainers();
+                populateTrainerSelect();
+            } catch (err) {
+                showToast(err.message || 'Failed to delete trainer', 'error');
             }
         });
     }
@@ -641,7 +673,18 @@
             trainers.forEach(t => {
                 const card = document.createElement('div');
                 card.className = 'trainer-card';
-                card.innerHTML = `<h3>${esc(t.name)}</h3><p><i class="fas fa-envelope"></i> ${esc(t.email || 'No email')}</p>`;
+                const initials = (t.name || '?').trim().split(/\s+/).map(w => w[0]).slice(0, 2).join('').toUpperCase();
+                card.innerHTML = `
+                    <div class="trainer-avatar">${esc(initials)}</div>
+                    <h3>${esc(t.name)}</h3>
+                    <p><i class="fas fa-envelope"></i> ${esc(t.email || 'No email')}</p>
+                    <div class="trainer-card-actions">
+                        <button class="btn-secondary btn-small edit-trainer"><i class="fas fa-edit"></i> Edit</button>
+                        <button class="btn-danger btn-small delete-trainer"><i class="fas fa-trash"></i> Delete</button>
+                    </div>
+                `;
+                card.querySelector('.edit-trainer').addEventListener('click', () => editTrainer(t.name, t.email));
+                card.querySelector('.delete-trainer').addEventListener('click', () => deleteTrainer(t.name));
                 container.appendChild(card);
             });
         } catch (e) {
