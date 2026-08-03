@@ -311,31 +311,29 @@
                 <td>${esc(r.batch || '-')}</td>
                 <td><span class="status-badge ${statusClass}">${r.status}</span></td>
                 <td>
-                    <button class="btn-icon view-reg" data-id="${r.id}" title="View"><i class="fas fa-eye"></i></button>
-                    <button class="btn-icon approve-reg" data-id="${r.id}" title="Approve"><i class="fas fa-check" style="color:var(--success)"></i></button>
-                    <button class="btn-icon reject-reg" data-id="${r.id}" title="Reject"><i class="fas fa-times" style="color:var(--danger)"></i></button>
-                    <button class="btn-icon delete-reg" data-id="${r.id}" title="Delete"><i class="fas fa-trash" style="color:var(--danger)"></i></button>
+                    <div class="row-actions">
+                        <button class="btn-icon row-kebab" data-id="${r.id}" title="Actions"><i class="fas fa-ellipsis-v"></i></button>
+                    </div>
                 </td>
             `;
             tbody.appendChild(tr);
-            tr.querySelector('.view-reg').addEventListener('click', () => openRegistrationModal(r));
-            tr.querySelector('.approve-reg').addEventListener('click', async () => {
-                if (window.prhConfirm) {
-                    const ok = await window.prhConfirm('Are you sure you want to approve this registration?', {
-                        title: 'Confirm Approval', confirmText: 'Yes, Approve', cancelText: 'Cancel', confirmClass: 'prh-btn--success'
-                    });
-                    if (!ok) return;
-                } else if (!confirm('Are you sure you want to approve this registration?')) return;
+            tr.querySelector('.row-kebab').addEventListener('click', (e) => {
+                e.stopPropagation();
                 setRegistrationId(r.id);
-                await doApprove(r.id);
-            });
-            tr.querySelector('.reject-reg').addEventListener('click', () => {
-                setRegistrationId(r.id);
-                showRejectModal(r.id);
-            });
-            tr.querySelector('.delete-reg').addEventListener('click', () => {
-                setRegistrationId(r.id);
-                showConfirmModal('Delete Registration', 'Type <strong>delete</strong> to move this registration to trash:', () => softDeleteRegistration(r.id));
+                openRowActions(e.currentTarget, [
+                    { icon: 'fa-eye', label: 'View', action: () => openRegistrationModal(r) },
+                    { icon: 'fa-check', label: 'Approve', color: 'var(--success)', action: async () => {
+                        if (window.prhConfirm) {
+                            const ok = await window.prhConfirm('Are you sure you want to approve this registration?', {
+                                title: 'Confirm Approval', confirmText: 'Yes, Approve', cancelText: 'Cancel', confirmClass: 'prh-btn--success'
+                            });
+                            if (!ok) return;
+                        } else if (!confirm('Are you sure you want to approve this registration?')) return;
+                        await doApprove(r.id);
+                    } },
+                    { icon: 'fa-times', label: 'Reject', color: 'var(--danger)', action: () => showRejectModal(r.id) },
+                    { icon: 'fa-trash', label: 'Delete', color: 'var(--danger)', action: () => showConfirmModal('Delete Registration', 'Type <strong>delete</strong> to move this registration to trash:', () => softDeleteRegistration(r.id)) }
+                ]);
             });
         });
     }
@@ -813,6 +811,50 @@
     }
 
     // ---------- UTILS ----------
+    let rowActionMenu = null;
+
+    function openRowActions(anchor, items) {
+        if (!rowActionMenu) {
+            rowActionMenu = document.createElement('div');
+            rowActionMenu.id = 'rowActionMenu';
+            rowActionMenu.className = 'action-dropdown';
+            document.body.appendChild(rowActionMenu);
+            document.addEventListener('click', () => closeRowActions());
+            window.addEventListener('scroll', closeRowActions, { passive: true });
+            window.addEventListener('resize', closeRowActions, { passive: true });
+        }
+        rowActionMenu.innerHTML = '';
+        items.forEach(item => {
+            const btn = document.createElement('button');
+            btn.type = 'button';
+            btn.className = 'dropdown-item' + (item.color === 'var(--danger)' ? ' danger' : '');
+            btn.innerHTML = `<i class="fas ${item.icon}" style="color:${item.color || 'var(--text-light)'}"></i><span>${item.label}</span>`;
+            btn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                closeRowActions();
+                item.action();
+            });
+            rowActionMenu.appendChild(btn);
+        });
+
+        const rect = anchor.getBoundingClientRect();
+        rowActionMenu.style.display = 'block';
+        rowActionMenu.style.left = Math.max(8, rect.left + rect.width - 190) + 'px';
+        rowActionMenu.style.top = (rect.bottom + 6) + 'px';
+
+        const menuRect = rowActionMenu.getBoundingClientRect();
+        if (menuRect.right > window.innerWidth - 8) {
+            rowActionMenu.style.left = Math.max(8, window.innerWidth - menuRect.width - 8) + 'px';
+        }
+        if (menuRect.bottom > window.innerHeight - 8) {
+            rowActionMenu.style.top = Math.max(8, rect.top - menuRect.height - 6) + 'px';
+        }
+    }
+
+    function closeRowActions() {
+        if (rowActionMenu) rowActionMenu.style.display = 'none';
+    }
+
     function esc(str) {
         if (!str) return '';
         const d = document.createElement('div');

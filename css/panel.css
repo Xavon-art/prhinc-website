@@ -447,6 +447,61 @@ h1, h2, h3, h4, h5, h6 {
     margin-left: 8px;
 }
 
+/* Row Actions Dropdown (kebab menu) */
+.row-actions {
+    position: relative;
+}
+
+.action-dropdown {
+    position: fixed;
+    z-index: 1200;
+    min-width: 180px;
+    background: var(--white);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    box-shadow: var(--shadow-lg);
+    padding: 6px;
+    display: none;
+}
+
+.action-dropdown.open {
+    display: block;
+}
+
+.dropdown-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    width: 100%;
+    padding: 10px 14px;
+    border: none;
+    background: none;
+    border-radius: 6px;
+    font-size: 0.9rem;
+    font-family: var(--font-body);
+    color: var(--text);
+    cursor: pointer;
+    transition: var(--transition);
+    text-align: left;
+}
+
+.dropdown-item:hover {
+    background: var(--bg-alt);
+}
+
+.dropdown-item.danger {
+    color: var(--danger);
+}
+
+.dropdown-item i {
+    width: 16px;
+    text-align: center;
+}
+
+.dropdown-item + .dropdown-item {
+    margin-top: 2px;
+}
+
 /* Status Badges */
 .status-badge {
     display: inline-block;
