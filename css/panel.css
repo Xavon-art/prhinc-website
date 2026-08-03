@@ -443,6 +443,10 @@ h1, h2, h3, h4, h5, h6 {
     border-bottom: none;
 }
 
+.data-table td .btn-icon + .btn-icon {
+    margin-left: 8px;
+}
+
 /* Status Badges */
 .status-badge {
     display: inline-block;
@@ -1072,6 +1076,24 @@ textarea.form-control {
 
     .modal-footer {
         padding: 16px 20px;
+    }
+
+    .detail-row {
+        flex-direction: column;
+        gap: 4px;
+        margin-bottom: 16px;
+    }
+
+    .detail-label {
+        width: 100%;
+    }
+
+    .section-header h2 {
+        font-size: 1.3rem;
+    }
+
+    .sidebar {
+        width: 260px;
     }
 }
 
