@@ -616,25 +616,6 @@ h1, h2, h3, h4, h5, h6 {
     border-color: var(--primary);
 }
 
-/* Client input in approved table */
-.client-input {
-    width: 100%;
-    padding: 8px 12px;
-    border: 2px solid var(--border);
-    border-radius: var(--radius-sm);
-    font-size: 0.9rem;
-    font-family: var(--font-body);
-    background: var(--bg);
-    transition: var(--transition);
-    min-width: 140px;
-}
-
-.client-input:focus {
-    outline: none;
-    border-color: var(--accent);
-    background: var(--white);
-}
-
 /* Classes Grid */
 .classes-grid {
     display: grid;

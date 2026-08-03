@@ -429,25 +429,13 @@
                 <td>${esc(r.email)}</td>
                 <td>${esc(r.phone || '')}</td>
                 <td>${esc(r.batch || '-')}</td>
-                <td><input type="text" class="client-input" data-id="${r.id}" value="${esc(r.client || '')}" placeholder="Assign client..."></td>
                 <td>
                     <button class="btn-icon view-reg" data-id="${r.id}" title="View"><i class="fas fa-eye"></i></button>
-                    <button class="btn-icon save-client" data-id="${r.id}" title="Save Client"><i class="fas fa-save" style="color:var(--primary)"></i></button>
                     <button class="btn-icon reject-reg" data-id="${r.id}" title="Reject"><i class="fas fa-times" style="color:var(--danger)"></i></button>
                 </td>
             `;
             tbody.appendChild(tr);
             tr.querySelector('.view-reg').addEventListener('click', () => openRegistrationModal(r));
-            tr.querySelector('.save-client').addEventListener('click', async () => {
-                const input = tr.querySelector('.client-input');
-                const client = input.value.trim();
-                try {
-                    await apiPost('/registrations', { action: 'set_client', id: r.id, client, username: currentUser.username });
-                    showToast('Client assigned', 'success');
-                } catch (e) {
-                    showToast(e.message || 'Failed to save client', 'error');
-                }
-            });
             tr.querySelector('.reject-reg').addEventListener('click', () => showRejectModal(r.id));
         });
     }
