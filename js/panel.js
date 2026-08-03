@@ -314,6 +314,7 @@
                     <button class="btn-icon view-reg" data-id="${r.id}" title="View"><i class="fas fa-eye"></i></button>
                     <button class="btn-icon approve-reg" data-id="${r.id}" title="Approve"><i class="fas fa-check" style="color:var(--success)"></i></button>
                     <button class="btn-icon reject-reg" data-id="${r.id}" title="Reject"><i class="fas fa-times" style="color:var(--danger)"></i></button>
+                    <button class="btn-icon delete-reg" data-id="${r.id}" title="Delete"><i class="fas fa-trash" style="color:var(--danger)"></i></button>
                 </td>
             `;
             tbody.appendChild(tr);
@@ -331,6 +332,10 @@
             tr.querySelector('.reject-reg').addEventListener('click', () => {
                 setRegistrationId(r.id);
                 showRejectModal(r.id);
+            });
+            tr.querySelector('.delete-reg').addEventListener('click', () => {
+                setRegistrationId(r.id);
+                showConfirmModal('Delete Registration', 'Type <strong>delete</strong> to move this registration to trash:', () => softDeleteRegistration(r.id));
             });
         });
     }
