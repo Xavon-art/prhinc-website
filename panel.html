@@ -77,7 +77,7 @@
                     </div>
                 </div>
                 <div class="table-container">
-                    <table class="data-table">
+                    <table class="data-table min-w-800">
                         <thead>
                             <tr>
                                 <th>Name</th>
@@ -105,7 +105,7 @@
                     <h2>Approved Trainees</h2>
                 </div>
                 <div class="table-container">
-                    <table class="data-table">
+                    <table class="data-table min-w-700">
                         <thead>
                             <tr>
                                 <th>Name</th>
@@ -154,7 +154,7 @@
                     <button id="createUserBtn" class="btn-primary"><i class="fas fa-user-plus"></i> Create User</button>
                 </div>
                 <div class="table-container">
-                    <table class="data-table">
+                    <table class="data-table min-w-600">
                         <thead>
                             <tr>
                                 <th>Username</th>
@@ -181,7 +181,7 @@
                     <button class="trash-tab" data-type="users">Users</button>
                 </div>
                 <div class="table-container" style="margin-top:16px">
-                    <table class="data-table">
+                    <table class="data-table min-w-600">
                         <thead>
                             <tr>
                                 <th id="trashCol1">Name</th>
@@ -247,13 +247,13 @@
                 <h2 id="viewClassName">Class Details</h2>
                 <button class="modal-close">&times;</button>
             </div>
-            <div class="class-details" style="padding:24px">
+            <div class="class-details">
                 <div class="detail-row"><span class="detail-label">Trainer:</span><span id="viewClassTrainer" class="detail-value"></span></div>
                 <div class="detail-row"><span class="detail-label">Duration:</span><span id="viewClassDuration" class="detail-value"></span></div>
             </div>
-            <h3 style="padding:0 24px 16px;margin:0">Trainees</h3>
-            <div class="table-container" style="margin:0 24px 24px">
-                <table class="data-table">
+            <h3 class="modal-subtitle">Trainees</h3>
+            <div class="table-container modal-table">
+                <table class="data-table min-w-600">
                     <thead><tr><th>Name</th><th>Email</th><th>Phone</th><th>Action</th></tr></thead>
                     <tbody id="viewClassTrainees"></tbody>
                 </table>
@@ -288,12 +288,12 @@
                 <h2>Assign Batch</h2>
                 <button class="modal-close">&times;</button>
             </div>
-            <div style="padding:24px">
+            <div class="modal-body">
                 <div class="form-group">
                     <label for="batchInput">Batch Name</label>
                     <input type="text" id="batchInput" class="form-control" placeholder="e.g., Batch 2026-A">
                 </div>
-                <p style="font-size:14px;color:#666;margin-top:12px">Or select from existing batches:</p>
+                <p style="font-size:14px;color:var(--text-muted);margin-top:12px">Or select from existing batches:</p>
                 <select id="batchSelect" class="form-control" style="margin-top:8px">
                     <option value="">Custom...</option>
                 </select>
@@ -312,7 +312,7 @@
                 <h2>Create User</h2>
                 <button class="modal-close">&times;</button>
             </div>
-            <form id="createUserForm" style="padding:24px">
+            <form id="createUserForm" class="modal-body">
                 <div class="form-group">
                     <label for="newUsername">Username</label>
                     <input type="text" id="newUsername" class="form-control" required placeholder="Enter username">
@@ -343,7 +343,7 @@
                 <h2>Add Trainer</h2>
                 <button class="modal-close">&times;</button>
             </div>
-            <form id="createTrainerForm" style="padding:24px">
+            <form id="createTrainerForm" class="modal-body">
                 <div class="form-group">
                     <label for="trainerName">Full Name</label>
                     <input type="text" id="trainerName" class="form-control" required placeholder="Enter trainer name">

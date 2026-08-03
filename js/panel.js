@@ -425,7 +425,7 @@
                 <td>${esc(r.email)}</td>
                 <td>${esc(r.phone || '')}</td>
                 <td>${esc(r.batch || '-')}</td>
-                <td><input type="text" class="client-input" data-id="${r.id}" value="${esc(r.client || '')}" placeholder="Assign client..." style="width:100%;padding:6px 10px;border:1px solid #d1d5db;border-radius:6px;font-size:13px"></td>
+                <td><input type="text" class="client-input" data-id="${r.id}" value="${esc(r.client || '')}" placeholder="Assign client..."></td>
                 <td>
                     <button class="btn-icon view-reg" data-id="${r.id}" title="View"><i class="fas fa-eye"></i></button>
                     <button class="btn-icon save-client" data-id="${r.id}" title="Save Client"><i class="fas fa-save" style="color:var(--primary)"></i></button>
