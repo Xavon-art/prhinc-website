@@ -5,6 +5,7 @@
     let cachedRegistrations = [];
     let cachedUsers = [];
     let currentTrashType = 'registrations';
+    let selectedTrash = new Set();
     let confirmCallback = null;
     let currentRegId = null;
     let currentBatchRegId = null;
@@ -725,9 +726,21 @@
                 document.querySelectorAll('.trash-tab').forEach(t => t.classList.remove('active'));
                 tab.classList.add('active');
                 currentTrashType = tab.dataset.type;
+                selectedTrash.clear();
+                const sa = document.getElementById('selectAllTrash');
+                if (sa) sa.checked = false;
                 loadTrash(currentTrashType);
             });
         });
+        document.getElementById('selectAllTrash').addEventListener('change', (e) => {
+            document.querySelectorAll('.trash-check').forEach(cb => cb.checked = e.target.checked);
+            selectedTrash.clear();
+            if (e.target.checked) {
+                document.querySelectorAll('.trash-check').forEach(cb => selectedTrash.add(cb.dataset.id));
+            }
+            updateEmptyTrashBtn();
+        });
+        document.getElementById('emptyTrashBtn').addEventListener('click', emptyTrash);
     }
 
     async function loadTrash(type) {
@@ -744,8 +757,15 @@
     function renderTrash(items, type) {
         const tbody = document.getElementById('trashTable');
         const noData = document.getElementById('noTrash');
+        const selectAll = document.getElementById('selectAllTrash');
+        selectedTrash.clear();
         tbody.innerHTML = '';
-        if (!items.length) { noData.style.display = 'block'; return; }
+        if (selectAll) { selectAll.checked = false; selectAll.disabled = !items.length; }
+        if (!items.length) {
+            noData.style.display = 'block';
+            updateEmptyTrashBtn();
+            return;
+        }
         noData.style.display = 'none';
 
         document.getElementById('trashCol1').textContent = type === 'users' ? 'Username' : 'Name';
@@ -755,8 +775,10 @@
 
         items.forEach(item => {
             const tr = document.createElement('tr');
+            const cb = `<td class="select-col"><input type="checkbox" class="trash-check" data-id="${esc(item.id)}"></td>`;
             if (type === 'users') {
                 tr.innerHTML = `
+                    ${cb}
                     <td>${esc(item.username)}</td>
                     <td>${esc(item.role)}</td>
                     <td>${item.deleted_at ? new Date(item.deleted_at).toLocaleString() : ''}</td>
@@ -768,6 +790,7 @@
                 `;
             } else {
                 tr.innerHTML = `
+                    ${cb}
                     <td>${esc(item.name)}</td>
                     <td>${esc(item.email)}</td>
                     <td>${item.deleted_at ? new Date(item.deleted_at).toLocaleString() : ''}</td>
@@ -779,6 +802,14 @@
                 `;
             }
             tbody.appendChild(tr);
+
+            const cbEl = tr.querySelector('.trash-check');
+            cbEl.addEventListener('change', () => {
+                if (cbEl.checked) selectedTrash.add(cbEl.dataset.id);
+                else selectedTrash.delete(cbEl.dataset.id);
+                if (selectAll) selectAll.checked = document.querySelectorAll('.trash-check:checked').length === items.length;
+                updateEmptyTrashBtn();
+            });
 
             tr.querySelector('.restore-trash').addEventListener('click', async () => {
                 const id = tr.querySelector('.restore-trash').dataset.id;
@@ -808,6 +839,32 @@
         } catch (e) {
             showToast(e.message || 'Failed', 'error');
         }
+    }
+
+    function updateEmptyTrashBtn() {
+        const btn = document.getElementById('emptyTrashBtn');
+        if (!btn) return;
+        const count = selectedTrash.size;
+        btn.disabled = count === 0;
+        btn.innerHTML = count ? `<i class="fas fa-trash-alt"></i> Empty Trash (${count})` : '<i class="fas fa-trash-alt"></i> Empty Trash';
+    }
+
+    function emptyTrash() {
+        if (selectedTrash.size === 0) return;
+        const count = selectedTrash.size;
+        showConfirmModal('Empty Trash', `Type <strong>delete</strong> to permanently remove ${count} item${count > 1 ? 's' : ''} from trash. This cannot be undone:`, async () => {
+            try {
+                const ids = Array.from(selectedTrash);
+                for (const id of ids) {
+                    await apiPost(currentTrashType === 'users' ? '/users' : '/registrations', { action: 'hard_delete', id, username: currentUser.username });
+                }
+                selectedTrash.clear();
+                showToast(`${ids.length} item${ids.length > 1 ? 's' : ''} permanently deleted`, 'success');
+                loadTrash(currentTrashType);
+            } catch (e) {
+                showToast(e.message || 'Failed', 'error');
+            }
+        });
     }
 
     // ---------- UTILS ----------
