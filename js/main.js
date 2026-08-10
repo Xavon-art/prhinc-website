@@ -125,6 +125,22 @@ if (form) {
             return;
         }
 
+        const emailInput = form.querySelector('[name="email"]');
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(data.email)) {
+            if (emailInput) emailInput.style.borderColor = '#ef4444';
+            prhToast('Please enter a valid email address.', 'error');
+            return;
+        }
+
+        const phoneInput = form.querySelector('[name="phone"]');
+        const phoneRegex = /^09\d{9}$/;
+        if (!phoneRegex.test(data.phone)) {
+            if (phoneInput) phoneInput.style.borderColor = '#ef4444';
+            prhToast('Contact number must be exactly 11 digits (e.g., 09123456789).', 'error');
+            return;
+        }
+
         const captchaCheck = document.getElementById('captchaCheck');
         const turnstileResponse = document.querySelector('[name="cf-turnstile-response"]');
         const recaptchaResponse = document.querySelector('[name="g-recaptcha-response"]');
