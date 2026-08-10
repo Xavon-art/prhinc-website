@@ -32,8 +32,8 @@ export async function onRequest(context) {
         if (isNaN(date)) return d;
         return date.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
       };
-      subject = 'You Are Now Enrolled in a Class - Palayan Recruitment Hub Inc.';
-      message = `Dear ${name},\n\nWe are pleased to inform you that you have been added to the ${batch || 'class'} for our Free Call Center Training Program.\n\nClass Schedule:\n  Start Date: ${fmt(start_date)}\n  End Date: ${fmt(end_date)}\n\nPlease take note of these dates and make sure that you are available for the entire duration of the training. Our team will reach out to you for further instructions.\n\nShould you have any questions or concerns, please do not hesitate to reach out to us.\n\nBest regards,\nPalayan Recruitment Hub Inc.\nManagement Team`;
+      subject = 'You Are Invited to a Class - Palayan Recruitment Hub Inc.';
+      message = `Dear ${name},\n\nWe are pleased to invite you to the ${batch || 'class'} for our Free Call Center Training Program.\n\nClass Schedule:\n  Start Date: ${fmt(start_date)}\n  End Date: ${fmt(end_date)}\n\nPlease take note of these dates and make sure that you are available for the entire duration of the training. Our team will reach out to you for further instructions.\n\nShould you have any questions or concerns, please do not hesitate to reach out to us.\n\nBest regards,\nPalayan Recruitment Hub Inc.\nManagement Team`;
     } else {
       return new Response(JSON.stringify({ error: 'Invalid type' }), {
         status: 400, headers: { 'Content-Type': 'application/json' }
