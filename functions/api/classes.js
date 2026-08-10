@@ -45,6 +45,18 @@ export async function onRequest(context) {
     if (action === 'create') {
       const { name, start_date, end_date, trainer, trainees } = body;
       if (!name) return json({ error: 'Class name required' }, 400);
+      const selected = Array.isArray(trainees) ? trainees : [];
+      if (selected.length > 0) {
+        const allClasses = await tursoSelect("SELECT trainees FROM classes");
+        const alreadyInClass = new Set();
+        allClasses.forEach(c => parseTrainees(c.trainees).forEach(t => alreadyInClass.add(t)));
+        const withBatch = await tursoSelect("SELECT id, batch FROM registrations WHERE batch IS NOT NULL AND batch != ''");
+        withBatch.forEach(r => alreadyInClass.add(r.id));
+        const conflicts = selected.filter(t => alreadyInClass.has(t));
+        if (conflicts.length > 0) {
+          return json({ error: 'One or more trainees are already assigned to another batch/class.' }, 400);
+        }
+      }
       const id = 'cls_' + Date.now().toString(36) + Math.random().toString(36).substring(2, 6);
       await tursoQuery(
         'INSERT INTO classes (id, name, start_date, end_date, trainer, trainees, created_at) VALUES (?, ?, ?, ?, ?, ?, ?)',

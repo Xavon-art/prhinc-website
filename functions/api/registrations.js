@@ -4,6 +4,11 @@ function json(data, status = 200) {
   return new Response(JSON.stringify(data), { status, headers: { 'Content-Type': 'application/json' } });
 }
 
+function parseTrainees(raw) {
+  if (!raw) return [];
+  try { return JSON.parse(raw); } catch { return []; }
+}
+
 export async function onRequest(context) {
   const { request } = context;
 
@@ -59,6 +64,20 @@ export async function onRequest(context) {
 
     if (action === 'batch') {
       const { batch } = body;
+      if (!batch) return json({ error: 'Batch name required' }, 400);
+      const regs = await tursoSelect("SELECT id, batch FROM registrations WHERE id = ?", [id]);
+      if (regs.length === 0) return json({ error: 'Registration not found' }, 404);
+      if (regs[0].batch && regs[0].batch !== batch) {
+        return json({ error: `Trainee is already assigned to "${regs[0].batch}".` }, 400);
+      }
+      const classes = await tursoSelect("SELECT name, trainees FROM classes");
+      for (const c of classes) {
+        if (parseTrainees(c.trainees).includes(id)) {
+          if (c.name !== batch) {
+            return json({ error: `Trainee is already assigned to class "${c.name}".` }, 400);
+          }
+        }
+      }
       await tursoQuery("UPDATE registrations SET batch = ? WHERE id = ?", [batch, id]);
       return json({ success: true });
     }

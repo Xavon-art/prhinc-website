@@ -7,6 +7,7 @@
     let currentTrashType = 'registrations';
     let selectedTrash = new Set();
     let confirmCallback = null;
+    let confirmTypeWord = 'delete';
     let currentRegId = null;
     let currentBatchRegId = null;
     let pendingRejectId = null;
@@ -132,13 +133,13 @@
         const closeBtns = modal.querySelectorAll('.modal-close');
 
         input.addEventListener('input', () => {
-            const match = input.value.trim() === 'delete';
+            const match = input.value.trim() === confirmTypeWord;
             btn.disabled = !match;
             error.style.display = match ? 'none' : 'block';
         });
 
         btn.addEventListener('click', () => {
-            if (input.value.trim() === 'delete' && confirmCallback) {
+            if (input.value.trim() === confirmTypeWord && confirmCallback) {
                 const cb = confirmCallback;
                 confirmCallback = null;
                 cb();
@@ -157,11 +158,15 @@
         });
     }
 
-    function showConfirmModal(title, message, callback) {
+    function showConfirmModal(title, message, callback, typeWord) {
+        confirmTypeWord = typeWord || 'delete';
         const modal = document.getElementById('confirmModal');
         document.getElementById('confirmTitle').textContent = title;
         document.getElementById('confirmMessage').innerHTML = message;
-        document.getElementById('confirmInput').value = '';
+        const input = document.getElementById('confirmInput');
+        input.value = '';
+        input.placeholder = `Type '${confirmTypeWord}' here`;
+        document.getElementById('confirmError').textContent = `You must type "${confirmTypeWord}" exactly`;
         document.getElementById('confirmDeleteBtn').disabled = true;
         document.getElementById('confirmError').style.display = 'none';
         confirmCallback = callback;
@@ -381,6 +386,12 @@
         const batch = document.getElementById('batchSelect').value;
         if (!batch) { showToast('No batch selected. Create a class first.', 'error'); return; }
         try {
+            const assigned = await getAssignedMap();
+            const currentAssigned = assigned.get(id);
+            if (currentAssigned && currentAssigned !== batch) {
+                showToast(`This trainee is already assigned to "${currentAssigned}".`, 'error');
+                return;
+            }
             await apiPost('/registrations', { action: 'batch', id, batch, username: currentUser.username });
             showToast('Batch assigned', 'success');
             hideModal(document.getElementById('batchModal'));
@@ -553,7 +564,7 @@
                     tr.innerHTML = `<td>${esc(t.name)}</td><td>${esc(t.email)}</td><td>${esc(t.phone || '')}</td>
                         <td><button class="btn-icon remove-trainee" data-id="${esc(t.id)}" title="Remove trainee"><i class="fas fa-user-minus"></i></button></td>`;
                     tbody.appendChild(tr);
-                    tr.querySelector('.remove-trainee').addEventListener('click', () => removeTrainee(c.id, t.id));
+                    tr.querySelector('.remove-trainee').addEventListener('click', () => removeTrainee(c.id, t.id, t.name));
                 });
                 showModal(document.getElementById('viewClassModal'));
             } else {
@@ -564,15 +575,36 @@
         }
     }
 
-    async function removeTrainee(classId, traineeId) {
+    async function removeTrainee(classId, traineeId, traineeName) {
+        showConfirmModal('Remove Trainee', `Type <strong>remove</strong> to remove trainee <strong>${esc(traineeName || '')}</strong> from this class:`, async () => {
+            try {
+                await apiPost('/classes', { action: 'remove_trainee', id: classId, traineeId });
+                showToast('Trainee removed', 'success');
+                openViewClassModal(classId);
+                loadClasses();
+            } catch (e) {
+                showToast(e.message || 'Failed to remove trainee', 'error');
+            }
+        }, 'remove');
+    }
+
+    async function getAssignedMap() {
+        const map = new Map();
         try {
-            await apiPost('/classes', { action: 'remove_trainee', id: classId, traineeId });
-            showToast('Trainee removed', 'success');
-            openViewClassModal(classId);
-            loadClasses();
-        } catch (e) {
-            showToast(e.message || 'Failed to remove trainee', 'error');
-        }
+            const [classesData, approvedData] = await Promise.all([
+                apiGet('/classes'),
+                apiGet('/registrations?status=approved')
+            ]);
+            (classesData.classes || []).forEach(c => {
+                (c.trainees || []).forEach(tid => {
+                    if (!map.has(tid)) map.set(tid, c.name);
+                });
+            });
+            (approvedData.registrations || []).forEach(r => {
+                if (r.batch && !map.has(r.id)) map.set(r.id, r.batch);
+            });
+        } catch (e) { /* ignore, fall back to no restrictions */ }
+        return map;
     }
 
     async function populateTraineeCheckboxes() {
@@ -581,6 +613,7 @@
         try {
             const data = await apiGet('/registrations?status=approved');
             const approved = data.registrations || [];
+            const assigned = await getAssignedMap();
             container.innerHTML = '';
             if (!approved.length) {
                 container.innerHTML = '<p style="color:#94a3b8;font-size:13px">No approved trainees to assign yet.</p>';
@@ -588,8 +621,12 @@
             }
             approved.forEach(r => {
                 const label = document.createElement('label');
-                label.className = 'checkbox-label';
-                label.innerHTML = `<input type="checkbox" value="${r.id}"> ${esc(r.name)} (${esc(r.email)})`;
+                const already = assigned.get(r.id);
+                const cls = already ? 'checkbox-label disabled-trainee' : 'checkbox-label';
+                label.className = cls;
+                const disabled = already ? ' disabled' : '';
+                const note = already ? ` <span class="assigned-tag">(already assigned to ${esc(already)})</span>` : '';
+                label.innerHTML = `<input type="checkbox" value="${esc(r.id)}"${disabled}> ${esc(r.name)} (${esc(r.email)})${note}`;
                 container.appendChild(label);
             });
         } catch (e) {
