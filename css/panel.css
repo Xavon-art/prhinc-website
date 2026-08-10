@@ -46,6 +46,7 @@ body {
     color: var(--text);
     line-height: 1.6;
     -webkit-font-smoothing: antialiased;
+    overflow-x: hidden;
 }
 
 h1, h2, h3, h4, h5, h6 {
@@ -184,6 +185,7 @@ h1, h2, h3, h4, h5, h6 {
     flex: 1;
     margin-left: var(--sidebar-width);
     min-height: 100vh;
+    min-width: 0;
 }
 
 /* Header */
@@ -229,7 +231,7 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 .main-header h1 {
-    font-size: 1.5rem;
+    font-size: clamp(1.05rem, 1.2vw + 0.8rem, 1.5rem);
     font-weight: 600;
 }
 
@@ -251,7 +253,7 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 .section-header h2 {
-    font-size: 1.5rem;
+    font-size: clamp(1.15rem, 1vw + 1rem, 1.5rem);
     font-weight: 600;
 }
 
@@ -830,6 +832,18 @@ textarea.form-control {
     max-width: 720px;
 }
 
+.modal-content.modal-md {
+    max-width: 480px;
+}
+
+.modal-content.modal-sm {
+    max-width: 420px;
+}
+
+.modal-content.modal-xs {
+    max-width: 400px;
+}
+
 .modal-body {
     padding: 24px;
 }
@@ -1090,8 +1104,11 @@ textarea.form-control {
     }
 
     .modal-content,
-    .modal-content.modal-lg {
-        max-width: 100%;
+    .modal-content.modal-lg,
+    .modal-content.modal-md,
+    .modal-content.modal-sm,
+    .modal-content.modal-xs {
+        max-width: 100% !important;
         max-height: 92vh;
         border-radius: var(--radius-lg) var(--radius-lg) 0 0;
     }
@@ -1138,9 +1155,47 @@ textarea.form-control {
     }
 }
 
+@media (max-width: 640px) {
+    .main-header h1 {
+        font-size: 1.1rem;
+    }
+
+    .last-updated {
+        display: none;
+    }
+
+    .data-table th,
+    .data-table td {
+        padding: 12px 14px;
+        font-size: 0.88rem;
+    }
+
+    .data-table td .btn-icon + .btn-icon {
+        margin-left: 4px;
+    }
+
+    .btn-icon {
+        width: 34px;
+        height: 34px;
+        font-size: 14px;
+    }
+
+    .modal-table {
+        margin: 0 12px 16px;
+    }
+
+    .modal-table .data-table {
+        min-width: 420px;
+    }
+
+    .user-info span {
+        max-width: 140px;
+    }
+}
+
 @media (max-width: 480px) {
     .main-header h1 {
-        font-size: 1.2rem;
+        font-size: 1.05rem;
     }
 
     .content-section {
@@ -1180,11 +1235,110 @@ textarea.form-control {
     }
 
     .section-header h2 {
-        font-size: 1.3rem;
+        font-size: 1.2rem;
     }
 
     .sidebar {
-        width: 260px;
+        width: min(260px, 85vw);
+    }
+}
+
+@media (max-width: 380px) {
+    .content-section {
+        padding: 14px 10px;
+    }
+
+    .data-table th,
+    .data-table td {
+        padding: 10px 12px;
+        font-size: 0.82rem;
+    }
+
+    .modal {
+        padding: 8px;
+    }
+
+    .modal-header,
+    .modal-body {
+        padding: 16px;
+    }
+
+    .modal-footer {
+        padding: 12px 16px;
+    }
+
+    .section-actions {
+        flex-direction: column;
+    }
+
+    .trainer-card-actions {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .trainer-card-actions .btn-small {
+        justify-content: center;
+        width: 100%;
+    }
+}
+
+/* Short / landscape screens */
+@media (max-height: 600px) and (orientation: landscape) {
+    .main-header {
+        height: 56px;
+    }
+
+    .content-section {
+        padding-top: 14px;
+        padding-bottom: 14px;
+    }
+
+    .sidebar {
+        overflow-y: auto;
+    }
+
+    .sidebar-nav {
+        gap: 4px;
+        padding: 12px;
+    }
+
+    .nav-item {
+        padding: 10px 14px;
+    }
+
+    .sidebar-header {
+        padding: 12px;
+    }
+
+    .sidebar-footer {
+        padding: 10px 12px;
+    }
+
+    .modal {
+        align-items: flex-start;
+        padding: 16px;
+        overflow-y: auto;
+    }
+
+    .modal-content,
+    .modal-content.modal-lg,
+    .modal-content.modal-md,
+    .modal-content.modal-sm,
+    .modal-content.modal-xs {
+        max-width: 100% !important;
+        max-height: calc(100vh - 32px);
+        border-radius: var(--radius-lg);
+    }
+}
+
+/* Large desktop screens */
+@media (min-width: 1600px) {
+    .content-section {
+        padding: 40px;
+    }
+
+    .modal-content.modal-lg {
+        max-width: 820px;
     }
 }
 

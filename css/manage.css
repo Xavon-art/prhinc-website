@@ -42,11 +42,13 @@ body {
     font-family: var(--font-body);
     background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 50%, var(--accent) 100%);
     min-height: 100vh;
+    min-height: 100dvh;
     display: flex;
     align-items: center;
     justify-content: center;
     padding: 24px;
     -webkit-font-smoothing: antialiased;
+    overflow-x: hidden;
 }
 
 /* Login Container */
@@ -55,10 +57,14 @@ body {
     border-radius: var(--radius-xl);
     box-shadow: var(--shadow-xl);
     width: 100%;
-    max-width: 440px;
+    max-width: min(440px, 100%);
     padding: 48px 40px;
     position: relative;
     overflow: hidden;
+    max-height: calc(100vh - 48px);
+    max-height: calc(100dvh - 48px);
+    overflow-y: auto;
+    scrollbar-width: thin;
 }
 
 .login-container::before {
@@ -247,13 +253,92 @@ body {
 }
 
 /* Responsive */
+@media (max-width: 640px) {
+    body {
+        padding: 16px;
+    }
+
+    .login-container {
+        padding: 40px 28px;
+    }
+}
+
 @media (max-width: 480px) {
+    body {
+        padding: 12px;
+    }
+
     .login-container {
         padding: 32px 24px;
     }
-    
+
+    .login-header {
+        margin-bottom: 28px;
+    }
+
     .login-header h1 {
         font-size: 1.5rem;
+    }
+}
+
+@media (max-width: 360px) {
+    body {
+        padding: 8px;
+    }
+
+    .login-container {
+        padding: 24px 18px;
+    }
+
+    .login-logo {
+        width: 64px;
+        margin-bottom: 14px;
+    }
+
+    .login-header h1 {
+        font-size: 1.3rem;
+    }
+
+    .form-group input,
+    .btn-login {
+        padding: 12px 14px;
+        font-size: 0.95rem;
+    }
+}
+
+/* Short / landscape screens */
+@media (max-height: 560px) and (orientation: landscape) {
+    body {
+        align-items: flex-start;
+        padding: 16px;
+    }
+
+    .login-container {
+        padding: 24px 32px;
+        max-height: calc(100vh - 32px);
+        max-height: calc(100dvh - 32px);
+    }
+
+    .login-header {
+        margin-bottom: 20px;
+    }
+
+    .login-logo {
+        width: 56px;
+        margin-bottom: 12px;
+    }
+
+    .login-header h1 {
+        font-size: 1.3rem;
+        margin-bottom: 4px;
+    }
+
+    .login-form {
+        gap: 14px;
+    }
+
+    .back-link {
+        margin-top: 14px;
     }
 }
 
