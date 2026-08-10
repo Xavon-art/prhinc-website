@@ -71,6 +71,27 @@ export async function onRequest(context) {
       return json({ success: true });
     }
 
+    if (action === 'add_trainee') {
+      const { id, traineeId } = body;
+      if (!id || !traineeId) return json({ error: 'Class id and trainee id required' }, 400);
+      const classes = await tursoSelect("SELECT trainees FROM classes WHERE id = ?", [id]);
+      if (classes.length === 0) return json({ error: 'Class not found' }, 404);
+      const current = parseTrainees(classes[0].trainees);
+      if (current.includes(traineeId)) return json({ error: 'Trainee is already in this class' }, 400);
+      const allClasses = await tursoSelect("SELECT name, trainees FROM classes");
+      for (const c of allClasses) {
+        if (parseTrainees(c.trainees).includes(traineeId)) {
+          return json({ error: `Trainee is already assigned to "${c.name}".` }, 400);
+        }
+      }
+      const withBatch = await tursoSelect("SELECT batch FROM registrations WHERE id = ? AND batch IS NOT NULL AND batch != ''", [traineeId]);
+      if (withBatch.length > 0) {
+        return json({ error: `Trainee is already assigned to batch "${withBatch[0].batch}".` }, 400);
+      }
+      await tursoQuery("UPDATE classes SET trainees = ? WHERE id = ?", [JSON.stringify([...current, traineeId]), id]);
+      return json({ success: true });
+    }
+
     if (action === 'remove_trainee') {
       const { id, traineeId } = body;
       if (!id || !traineeId) return json({ error: 'Class id and trainee id required' }, 400);

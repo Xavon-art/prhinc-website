@@ -10,6 +10,7 @@
     let confirmTypeWord = 'delete';
     let currentRegId = null;
     let currentBatchRegId = null;
+    let currentAddTraineeClassId = null;
     let pendingRejectId = null;
 
     const user = (() => {
@@ -515,6 +516,72 @@
                 }
             });
         });
+
+        document.getElementById('addTraineeBtn').addEventListener('click', () => {
+            const id = document.getElementById('addTraineeBtn').dataset.id;
+            if (id) openAddTraineeModal(id);
+        });
+
+        document.getElementById('addTraineeSaveBtn').addEventListener('click', async () => {
+            const classId = currentAddTraineeClassId;
+            if (!classId) return;
+            const checked = [...document.querySelectorAll('#addTraineeList input:checked')].map(cb => cb.value);
+            if (!checked.length) { showToast('Select at least one trainee', 'error'); return; }
+            const btn = document.getElementById('addTraineeSaveBtn');
+            btn.disabled = true;
+            try {
+                for (const tid of checked) {
+                    await apiPost('/classes', { action: 'add_trainee', id: classId, traineeId: tid });
+                }
+                showToast(`Added ${checked.length} trainee${checked.length > 1 ? 's' : ''}`, 'success');
+                hideModal(document.getElementById('addTraineeModal'));
+                openViewClassModal(classId);
+                loadClasses();
+            } catch (e) {
+                showToast(e.message || 'Failed to add trainee', 'error');
+            } finally {
+                btn.disabled = false;
+            }
+        });
+    }
+
+    async function openAddTraineeModal(classId) {
+        currentAddTraineeClassId = classId;
+        const listEl = document.getElementById('addTraineeList');
+        listEl.innerHTML = '<p style="color:#94a3b8;font-size:13px">Loading approved trainees...</p>';
+        showModal(document.getElementById('addTraineeModal'));
+        try {
+            const [approvedData, classesData] = await Promise.all([
+                apiGet('/registrations?status=approved'),
+                apiGet('/classes')
+            ]);
+            const approved = approvedData.registrations || [];
+            const currentClass = (classesData.classes || []).find(c => c.id === classId);
+            const inThisClass = new Set(currentClass ? currentClass.trainees : []);
+            const assignedElsewhere = new Map();
+            (classesData.classes || []).forEach(c => {
+                (c.trainees || []).forEach(tid => {
+                    if (!assignedElsewhere.has(tid)) assignedElsewhere.set(tid, c.name);
+                });
+            });
+            (approvedData.registrations || []).forEach(r => {
+                if (r.batch && !assignedElsewhere.has(r.id)) assignedElsewhere.set(r.id, r.batch);
+            });
+            const available = approved.filter(r => !inThisClass.has(r.id) && !assignedElsewhere.has(r.id));
+            listEl.innerHTML = '';
+            if (!available.length) {
+                listEl.innerHTML = '<p style="color:#ef4444;font-size:13px">No available trainees. All approved trainees are already assigned.</p>';
+                return;
+            }
+            available.forEach(r => {
+                const label = document.createElement('label');
+                label.className = 'checkbox-label';
+                label.innerHTML = `<input type="checkbox" value="${esc(r.id)}"> ${esc(r.name)} (${esc(r.email)})`;
+                listEl.appendChild(label);
+            });
+        } catch (e) {
+            listEl.innerHTML = '<p style="color:#ef4444;font-size:13px">Failed to load approved trainees.</p>';
+        }
     }
 
     async function loadClasses() {
@@ -557,6 +624,7 @@
                 document.getElementById('viewClassTrainer').textContent = c.trainer || '-';
                 document.getElementById('viewClassDuration').textContent = `${c.start_date ? new Date(c.start_date).toLocaleDateString() : '?'} - ${c.end_date ? new Date(c.end_date).toLocaleDateString() : '?'}`;
                 document.getElementById('deleteClassBtn').dataset.id = c.id;
+                document.getElementById('addTraineeBtn').dataset.id = c.id;
                 const tbody = document.getElementById('viewClassTrainees');
                 tbody.innerHTML = '';
                 (c.trainees || []).forEach(t => {

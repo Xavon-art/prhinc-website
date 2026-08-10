@@ -263,7 +263,26 @@
                 </table>
             </div>
             <div class="modal-footer">
+                <button class="btn-primary" id="addTraineeBtn"><i class="fas fa-user-plus"></i> Add Trainee</button>
                 <button class="btn-danger" id="deleteClassBtn"><i class="fas fa-trash"></i> Delete Class</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add Trainee to Class Modal -->
+    <div id="addTraineeModal" class="modal hidden">
+        <div class="modal-content modal-sm">
+            <div class="modal-header">
+                <h2>Add Trainee to Class</h2>
+                <button class="modal-close">&times;</button>
+            </div>
+            <div class="modal-body">
+                <p style="color:var(--text-light);font-size:14px;margin-bottom:12px">Select approved trainees to add to this class:</p>
+                <div id="addTraineeList" class="checkbox-group"></div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-secondary modal-close">Cancel</button>
+                <button id="addTraineeSaveBtn" class="btn-primary">Add Selected</button>
             </div>
         </div>
     </div>
