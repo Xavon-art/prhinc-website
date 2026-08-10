@@ -11,6 +11,7 @@
     let currentRegId = null;
     let currentBatchRegId = null;
     let currentAddTraineeClassId = null;
+    let currentAddTraineeOptions = [];
     let pendingRejectId = null;
 
     const user = (() => {
@@ -537,12 +538,48 @@
                 hideModal(document.getElementById('addTraineeModal'));
                 openViewClassModal(classId);
                 loadClasses();
+                sendAddedToClassEmails(classId, checked);
             } catch (e) {
                 showToast(e.message || 'Failed to add trainee', 'error');
             } finally {
                 btn.disabled = false;
             }
         });
+    }
+
+    async function sendAddedToClassEmails(classId, traineeIds) {
+        try {
+            const data = await apiGet(`/classes?id=${classId}`);
+            const cls = data.class;
+            showToast('Sending email notifications...', 'info');
+            let sent = 0, failed = 0;
+            for (const tid of traineeIds) {
+                const opt = currentAddTraineeOptions.find(o => o.id === tid);
+                if (!opt) continue;
+                try {
+                    await apiPost('/send-notification', {
+                        name: opt.name,
+                        email: opt.email,
+                        type: 'added_to_class',
+                        batch: cls.name,
+                        start_date: cls.start_date,
+                        end_date: cls.end_date
+                    });
+                    sent++;
+                } catch (e) {
+                    failed++;
+                }
+            }
+            if (sent > 0 && failed === 0) {
+                showToast('Emails sent successfully', 'success');
+            } else if (sent > 0 && failed > 0) {
+                showToast(`Added ${sent} trainee${sent > 1 ? 's' : ''}, but ${failed} email${failed > 1 ? 's' : ''} failed to send`, 'warning');
+            } else {
+                showToast('Trainees added, but no emails were sent', 'warning');
+            }
+        } catch (e) {
+            showToast('Trainees added, but failed to send emails', 'warning');
+        }
     }
 
     async function openAddTraineeModal(classId) {
@@ -568,6 +605,7 @@
                 if (r.batch && !assignedElsewhere.has(r.id)) assignedElsewhere.set(r.id, r.batch);
             });
             const available = approved.filter(r => !inThisClass.has(r.id) && !assignedElsewhere.has(r.id));
+            currentAddTraineeOptions = available.map(r => ({ id: r.id, name: r.name, email: r.email }));
             listEl.innerHTML = '';
             if (!available.length) {
                 listEl.innerHTML = '<p style="color:#ef4444;font-size:13px">No available trainees. All approved trainees are already assigned.</p>';
